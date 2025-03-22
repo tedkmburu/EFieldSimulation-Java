@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.yourcompany.app'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    maven {
+        url 'https://jogamp.org/deployment/maven'
+    }
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.processing:core:4.3.1'
+    implementation files('libs/controlP5.jar')
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+}
