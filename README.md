@@ -40,7 +40,7 @@ This project is currently a work in progress. The submitted code serves as proof
 ## Setup and Running the Project
 1. **Clone the Repository:**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/tedkmburu/EFieldSimulation-Java
    ```
 2. **Add Dependencies:**
     - Ensure the Processing and ControlP5 libraries are added to your project’s build path.
