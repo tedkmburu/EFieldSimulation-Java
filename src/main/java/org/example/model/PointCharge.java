@@ -1,47 +1,47 @@
 package org.example.model;
 
-import org.example.Constants;
+import org.example.model.config.ConfigManager;
+import org.example.view.style.Style;
+import org.example.view.style.StyleFactory;
 import processing.core.PApplet;
+import processing.core.PConstants;
 import processing.core.PVector;
-import org.example.Constants.*;
 
-import static org.example.Constants.CHARGE_INCREMENT_DELTA;
 
 public class PointCharge extends Charge {
     public boolean selected = false;
     public boolean dragging = false;
+    private Integer diameter;
 
     public PointCharge(PVector position, float charge) {
         super(position, charge);
+
+        this.diameter = ConfigManager.getInstance().getChargeDiameter();
     }
+
+    private static final Style POS_STYLE = StyleFactory.getStyle(0xFFD2292D, 0xFFFFFFFF, 1f, true);
+    private static final Style NEG_STYLE = StyleFactory.getStyle(0xFF1761B0, 0xFFFFFFFF, 1f, true);
+    private static final Style NEU_STYLE = StyleFactory.getStyle(0xFF555555, 0xFFFFFFFF, 1f, true);
+    private static final Style SELECTED_BORDER = StyleFactory.getStyle(0, 0xFFFFFFFF, 2f, false);
+    private static final Style NORMAL_BORDER = StyleFactory.getStyle(0, 0x80000000, 1f, false);
 
     @Override
     public void display(PApplet app) {
-        // Set color based on charge
-        if (charge > 0) {
-            app.fill(210, 41, 45);
-        } else if (charge < 0) {
-            app.fill(23, 97, 176);
-        } else {
-            app.fill(85, 85, 85, 190);
-        }
+        // fill
+        Style fillStyle = charge > 0 ? POS_STYLE : charge < 0 ? NEG_STYLE : NEU_STYLE;
+        fillStyle.apply(app);
 
-        // Highlight if it has been selected
-        if (selected) {
-            app.strokeWeight(2);
-            app.stroke(255);
-        } else {
-            app.strokeWeight(1);
-            app.stroke(0, 0, 0, (float) 255 / 2);
-        }
+        // border
+        Style border = selected ? SELECTED_BORDER : NORMAL_BORDER;
+        border.apply(app);
+        app.ellipse(position.x, position.y, this.diameter, this.diameter);
 
-        // Draw the circle
-        app.ellipse(position.x, position.y, Constants.CHARGE_DIAMETER, Constants.CHARGE_DIAMETER);
-
-        // Display the numeric charge
+        // white text for the number
+        app.pushStyle();
         app.fill(255);
-        app.textAlign(PApplet.CENTER, PApplet.CENTER);
-        app.text((int) charge, position.x, position.y);
+        app.textAlign(PConstants.CENTER, PConstants.CENTER);
+        app.text((int)charge, position.x, position.y);                   // draw the number
+        app.popStyle();
     }
 
     public boolean isDragging() {
@@ -52,9 +52,9 @@ public class PointCharge extends Charge {
         this.selected = true;
     }
 
-    public void increaseCharge() { this.charge += CHARGE_INCREMENT_DELTA; }
+    public void increaseCharge() { this.charge += ConfigManager.getInstance().getChargeIncrementDelta(); }
 
     public void decreaseCharge() {
-        this.charge -= CHARGE_INCREMENT_DELTA;
+        this.charge -= ConfigManager.getInstance().getChargeIncrementDelta();
     }
 }

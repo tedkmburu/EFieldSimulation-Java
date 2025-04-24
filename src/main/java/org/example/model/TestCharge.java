@@ -1,13 +1,14 @@
 package org.example.model;
 
-import org.example.CommonMath;
+import org.example.model.config.ConfigManager;
+import org.example.view.style.Style;
+import org.example.view.style.StyleFactory;
 import processing.core.PApplet;
 import processing.core.PVector;
 
 import java.util.ArrayList;
 
-import static org.example.CommonMath.*;
-import static org.example.Constants.*;
+import static org.example.model.CommonMath.*;
 
 
 public class TestCharge extends Charge {
@@ -15,31 +16,44 @@ public class TestCharge extends Charge {
     private PVector velocity;
     private PVector acceleration;
     private float radius;
+    private float diameter;
     private int displayColor; // Processing color
+
+    private static final Style POS_TC = StyleFactory.getStyle(ConfigManager.getInstance().getPositiveChargeColor(), 0, 1f, true);
+    private static final Style NEG_TC = StyleFactory.getStyle(ConfigManager.getInstance().getNegativeChargeColor(), 0, 1f, true);
+    private static final Style NEU_TC = StyleFactory.getStyle(ConfigManager.getInstance().getNeutralChargeColor(), 0, 1f, true);
 
     public TestCharge(PVector position, float charge) {
         super(position, charge);
         this.velocity = createVector();
         this.acceleration = createVector();
-        this.radius = TEST_CHARGE_RADIUS;
+        this.radius = ConfigManager.getInstance().getTestChargeRadius();
+        this.diameter = ConfigManager.getInstance().getTestChargeDiameter();
 
         // Determine color based on charge polarity (using colors defined in Constants)
-        if (charge > 0) {
-            this.displayColor = POSITIVE_CHARGE_COLOR;
-        } else if (charge < 0) {
-            this.displayColor = NEGATIVE_CHARGE_COLOR;
-        } else {
-            this.displayColor = NEUTRAL_CHARGE_COLOR;
-        }
+//        if (charge > 0) {
+//            this.displayColor = ConfigManager.getInstance().getPositiveChargeColor();
+//        } else if (charge < 0) {
+//            this.displayColor = ConfigManager.getInstance().getNegativeChargeColor();
+//        } else {
+//            this.displayColor = ConfigManager.getInstance().getNeutralChargeColor();
+//        }
+
     }
 
     // Display the test charge as an ellipse
     public void display(PApplet app) {
-        app.pushMatrix();
-        app.stroke(0);
-        app.fill(displayColor);
-        app.ellipse(position.x, position.y, TEST_CHARGE_DIAMETER, TEST_CHARGE_DIAMETER);
-        app.popMatrix();
+//        app.pushMatrix();
+//        app.stroke(0);
+//        app.strokeWeight(1);
+//        app.fill(displayColor);
+//        app.ellipse(position.x, position.y, ConfigManager.getInstance().getTestChargeDiameter(), ConfigManager.getInstance().getTestChargeDiameter());
+//        app.popMatrix();
+            app.pushMatrix();
+            Style sty = charge>0 ? POS_TC : charge<0 ? NEG_TC : NEU_TC;
+            sty.apply(app);
+            app.ellipse(position.x, position.y, diameter, diameter);
+            app.popMatrix();
     }
 
     // Update the position based on a given force vector.

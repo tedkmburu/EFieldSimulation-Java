@@ -1,18 +1,28 @@
-package org.example;
+package org.example.model;
 
-import org.example.model.*;
+import org.example.model.config.ConfigManager;
+import org.example.engine.modes.*;
+import org.example.factories.ChargeFactory;
+import org.example.factories.FieldElementFactory;
+import org.example.factories.ProcessingChargeFactory;
+import org.example.factories.ProcessingFieldElementFactory;
+import org.example.view.ui.ControlPanel;
+import org.example.view.ui.ControlPanelListener;
 import processing.core.PApplet;
 import processing.core.PVector;
-import processing.core.PConstants;
-import org.example.CommonMath.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import static org.example.CommonMath.*;
-import static org.example.Constants.*;
+import static org.example.model.CommonMath.*;
 
-public class Simulation {
-    private PApplet parent;
+public class SimulationModel implements ControlPanelListener {
+    public PApplet parent;
+
+    private final FieldElementFactory fieldElementFactory;
+    private final ChargeFactory chargeFactory;
+
+    private final List<SimulationMode> modes;
 
     private ArrayList<PointCharge> pointCharges;
     private ArrayList<FieldLine> fieldLines;
@@ -21,17 +31,27 @@ public class Simulation {
     private ArrayList<FieldVector> fieldVectors;
     private VoltageGradient voltageGradient;
 
-    private ControlPanel controlPanel;
+    public ControlPanel controlPanel;
 
     private PVector mousePosition;
+    public boolean voltageDirty = true;
 
-    public Simulation(PApplet parent, ControlPanel controlPanel) {
+    public SimulationModel(PApplet parent, ControlPanel controlPanel, FieldElementFactory fieldElementFactory, ChargeFactory chargeFactory) {
         this.parent = parent;
         this.controlPanel = controlPanel;
+        this.fieldElementFactory = fieldElementFactory;
+        this.chargeFactory = chargeFactory;
 
         this.pointCharges = new ArrayList<>();
-        pointCharges.add(new PointCharge(new PVector(200, 200), 5));
-        pointCharges.add(new PointCharge(new PVector(600, 200), -5));
+
+        // this order controls the rendering ordering
+        modes = List.of(
+            new VoltageMode(this, controlPanel),
+            new FieldVectorMode(this, controlPanel),
+            new FieldLineMode(this, controlPanel, fieldElementFactory),
+            new TestChargeMode(this, controlPanel),
+            new EquipotentialMode(this, controlPanel)
+        );
 
         this.equiLines = new ArrayList<>();
         this.fieldLines = new ArrayList<>();
@@ -40,57 +60,56 @@ public class Simulation {
         this.voltageGradient = new VoltageGradient(this);
     }
 
+    public SimulationModel(PApplet parent, ControlPanel controlPanel) {
+        this(parent, controlPanel, new ProcessingFieldElementFactory(), new ProcessingChargeFactory());
+    }
+
     public void update() {
         mousePosition = new PVector(parent.mouseX, parent.mouseY);
-        if (controlPanel.showFieldVectorsMode()) { createFieldVectors(); }
-
-        if (controlPanel.testChargeMode()) {
-            for (TestCharge testCharge : testCharges) {
-                testCharge.move(pointCharges);
-            }
-        }
-
-        if (controlPanel.showFieldLinesMode()) { createFieldLines(); }
-
-        if (controlPanel.showVoltageMode()) {
-            this.voltageGradient.updateVoltageGradient(parent, pointCharges);
+        for (SimulationMode mode : modes) {
+            mode.update();
         }
     }
 
     public void display() {
+        for (SimulationMode mode : modes) {
+            mode.display(parent);
+        }
         displayGrid(parent);
-
-        if (controlPanel.showVoltageMode()) { voltageGradient.display(parent); }
-        if (controlPanel.showFieldLinesMode()) { displayFieldLines(); }
-        if (controlPanel.showFieldVectorsMode()) { displayFieldVectors(); }
-        if (controlPanel.showEquipotentialLinesMode()) { displayEquipotentialLines(); }
-
         for (TestCharge testCharge : testCharges) { testCharge.display(parent); }
         for (PointCharge pointCharge : pointCharges) { pointCharge.display(parent); }
-
         displayFrameRate(parent);
+        displaySidePanelBackground(parent);
     }
 
     public PVector getMousePosition() {
         return mousePosition;
     }
 
-    private void displayEquipotentialLines() {
+    public void displayEquipotentialLines(PApplet app) {
         for (EquiLine equipotentialLine : equiLines) {
             equipotentialLine.display(parent);
         }
     }
 
-    private void displayFieldVectors() {
+    public void displayFieldVectors(PApplet app) {
         for (FieldVector fieldVector : fieldVectors) {
             fieldVector.display(parent);
         }
     }
 
-    private void displayFieldLines() {
+    public void displayFieldLines(PApplet app) {
         for (FieldLine fieldLine : fieldLines) {
             fieldLine.display(parent);
         }
+    }
+
+    public void updateVoltageGradient() {
+        voltageGradient.updateVoltageGradient(pointCharges);
+    }
+
+    public void displayVoltage(PApplet app) {
+        voltageGradient.display(parent);
     }
 
     public void displayFrameRate(PApplet app) {
@@ -102,6 +121,7 @@ public class Simulation {
     }
 
     public void displayGrid(PApplet app) {
+        Integer GRID_SIZE = ConfigManager.getInstance().getGridSize();
         if (controlPanel.showGridMode()) {
             app.pushMatrix();
             app.stroke(255, 255, 255, 50);
@@ -118,12 +138,20 @@ public class Simulation {
                 Integer x2 = app.width;
                 app.line(x1, yPos, x2, yPos);
             }
-
-            app.stroke(255, 255, 255, 255);
-            app.fill(255, 255, 255, 255);
-            app.rect(app.width - SIDE_PANEL_WIDTH - SIDE_PANEL_PADDING, 0, SIDE_PANEL_WIDTH + SIDE_PANEL_PADDING, app.height);
             app.popMatrix();
         }
+    }
+
+    public void displaySidePanelBackground(PApplet app) {
+        // create white background for side panel
+        Integer SIDE_PANEL_WIDTH = ConfigManager.getInstance().getSidePanelWidth();
+        Integer SIDE_PANEL_PADDING = ConfigManager.getInstance().getSidePanelPadding();
+
+        app.pushMatrix();
+        app.stroke(255, 255, 255, 255);
+        app.fill(255, 255, 255, 255);
+        app.rect(app.width - SIDE_PANEL_WIDTH - SIDE_PANEL_PADDING, 0, SIDE_PANEL_WIDTH + SIDE_PANEL_PADDING, app.height);
+        app.popMatrix();
     }
 
     public ArrayList<PointCharge> getPointCharges() {
@@ -147,8 +175,7 @@ public class Simulation {
         }
     }
 
-    private void getEquiLinePoints(PVector originPoint, PVector leftPoint, PVector rightPoint, int numberOfLoops,
-                                   ArrayList<PVector> leftPoints, ArrayList<PVector> rightPoints) {
+    private void getEquiLinePoints(PVector originPoint, PVector leftPoint, PVector rightPoint, int numberOfLoops, ArrayList<PVector> leftPoints, ArrayList<PVector> rightPoints) {
         // On first call, initialize arrays if empty.
         if (leftPoints.isEmpty() || rightPoints.isEmpty()) {
             leftPoints.add(originPoint.copy());
@@ -164,7 +191,7 @@ public class Simulation {
         for (int i = 0; i < 100; i++) {
             PVector forceVector = netForceAtPoint(leftPoint, pointCharges);
             forceVector.rotate((float)Math.PI / 2);
-            forceVector.setMag(Constants.EQUI_LINES_ACCURACY);
+            forceVector.setMag(ConfigManager.getInstance().getEquiLinesAccuracy());
             leftPoint.add(forceVector);
         }
         leftPoints.add(leftPoint.copy());
@@ -174,7 +201,7 @@ public class Simulation {
             PVector forceVector = netForceAtPoint(rightPoint, pointCharges);
             forceVector.mult(-1);
             forceVector.rotate((float)Math.PI / 2);
-            forceVector.setMag(Constants.EQUI_LINES_ACCURACY);
+            forceVector.setMag(ConfigManager.getInstance().getEquiLinesAccuracy());
             rightPoint.add(forceVector);
         }
         rightPoints.add(rightPoint.copy());
@@ -184,13 +211,13 @@ public class Simulation {
             PVector pointToCheck = leftPoints.get(leftPoints.size() - 5);
             for (PVector p : rightPoints) {
                 if (PVector.dist(pointToCheck, p) < 20) {
-                    numberOfLoops = Constants.EQUI_LINES_LIMIT;
+                    numberOfLoops = ConfigManager.getInstance().getEquiLinesLimit();
                     break;
                 }
             }
         }
 
-        if (numberOfLoops < Constants.EQUI_LINES_LIMIT) {
+        if (numberOfLoops < ConfigManager.getInstance().getEquiLinesLimit()) {
             getEquiLinePoints(originPoint, leftPoint.copy(), rightPoint.copy(), numberOfLoops + 1, leftPoints, rightPoints);
         } else {
             float distanceBetweenLines = PVector.dist(leftPoints.get(leftPoints.size() - 1), rightPoints.get(rightPoints.size() - 1));
@@ -200,8 +227,8 @@ public class Simulation {
             }
             // Create and store two equipotential lines.
             float voltage = voltageAtPoint(leftPoints.get(0), pointCharges);
-            org.example.model.EquiLine leftEquiLine = new org.example.model.EquiLine(parent, leftPoints, voltage);
-            org.example.model.EquiLine rightEquiLine = new org.example.model.EquiLine(parent, rightPoints, voltage);
+            EquiLine leftEquiLine = fieldElementFactory.createEquiLine(parent, leftPoints, voltage);
+            EquiLine rightEquiLine = fieldElementFactory.createEquiLine(parent, rightPoints, voltage);
             equiLines.add(leftEquiLine);
             equiLines.add(rightEquiLine);
         }
@@ -212,14 +239,14 @@ public class Simulation {
         // Clear any existing field vectors.
         fieldVectors.clear();
         // Loop through a grid over the canvas (use parent.height and parent.width)
-        for (int y = 0; y < parent.height; y += Constants.GRID_SIZE) {
-            for (int x = 0; x < parent.width; x += Constants.GRID_SIZE) {
+        for (int y = 0; y < parent.height; y += ConfigManager.getInstance().getGridSize()) {
+            for (int x = 0; x < parent.width; x += ConfigManager.getInstance().getGridSize()) {
                 PVector arrowLocation = new PVector(x, y);
 
                 // Check if no charge is near this grid point.
                 boolean noChargesNearby = true;
                 for (Charge charge : pointCharges) {
-                    if (PVector.dist(arrowLocation, charge.getPosition()) < Constants.CHARGE_DIAMETER) {
+                    if (PVector.dist(arrowLocation, charge.getPosition()) < ConfigManager.getInstance().getChargeDiameter()) {
                         noChargesNearby = false;
                         break;
                     }
@@ -228,10 +255,10 @@ public class Simulation {
                 if (noChargesNearby) {
                     // Get the net force at this location, then scale it.
                     PVector forceVector = netForceAtPoint(arrowLocation, pointCharges);
-                    forceVector.div(Constants.FIELD_VECTOR_SCALE); // remove
+                    forceVector.div(ConfigManager.getInstance().getFieldVectorScale()); // remove
 
                     // Create a new FieldVector and add it to the list.
-                    fieldVectors.add(new FieldVector(arrowLocation, forceVector));
+                    fieldVectors.add(fieldElementFactory.createFieldVector(arrowLocation, forceVector));
                 }
             }
         }
@@ -241,12 +268,12 @@ public class Simulation {
     public void showForceVectorsOnMouse() {
 //        PVector mousePos = new PVector(parent.mouseX, parent.mouseY);
         PVector force = netForceAtPoint(mousePosition, pointCharges);
-        force.div(Constants.FIELD_VECTOR_SCALE);
+        force.div(ConfigManager.getInstance().getFieldVectorScale());
 
         // check if any charges are near the mouse cursor
         boolean noChargesNearby = true;
         for (Charge charge : pointCharges) {
-            if (PVector.dist(mousePosition, charge.getPosition()) < Constants.CHARGE_RADIUS) {
+            if (PVector.dist(mousePosition, charge.getPosition()) < ConfigManager.getInstance().getChargeRadius()) {
                 noChargesNearby = false;
                 break;
             }
@@ -258,67 +285,26 @@ public class Simulation {
         }
     }
 
-    // Draws an arrow from start to end.
-    public void createArrow(PVector start, PVector end, float angle, int arrowColor, float scale) {
-        parent.pushMatrix();
-        parent.stroke(arrowColor);
-        parent.strokeWeight(scale * 4);
-        parent.noFill();
-        parent.line(start.x, start.y, end.x, end.y);
-        parent.translate(end.x, end.y);
-        parent.rotate(angle);
-        parent.fill(arrowColor);
-        parent.triangle(0, 0, -10 * scale, -5 * scale, -10 * scale, 5 * scale);
-        parent.popMatrix();
-    }
-
     public void createFieldLines() {
         // Clear any existing field lines.
         fieldLines.clear();
+
         for (PointCharge charge : pointCharges) {
-            float radius = Constants.CHARGE_RADIUS / 2.0f;
-            int times = (int)Math.abs(charge.getCharge() * Constants.FIELD_LINES_PER_COULOMB);
-            PVector origin = charge.getPosition().copy();
-            PVector point = new PVector(radius, radius);
-            for (int a = 0; a < times; a++) {
-                ArrayList<PVector> linePoints = new ArrayList<>();
-                getFieldLinePoints(PVector.add(origin, point), 0, linePoints);
-                if (!linePoints.isEmpty()) {
-                    fieldLines.add(new org.example.model.FieldLine(linePoints));
+            if (charge.getCharge() > 0)
+            {
+                float radius = ConfigManager.getInstance().getChargeRadius();
+                int times = (int)Math.abs(charge.getCharge() * ConfigManager.getInstance().getFieldLinesPerCoulomb());
+                PVector origin = charge.getPosition().copy();
+                PVector point = new PVector(radius, 0);
+                for (int a = 0; a < times; a++) {
+                    PVector startingPoint = PVector.add(origin, point);
+
+                    FieldLine line = new FieldLineBuilder(parent, startingPoint, pointCharges).build();
+                    fieldLines.add(line);
+
+                    point.rotate((2 * (float)Math.PI) / times);
                 }
-                point.rotate((2 * (float)Math.PI) / times);
             }
-        }
-    }
-
-    private void getFieldLinePoints(PVector startingPosition, int numberOfLoops, ArrayList<PVector> linePoints) {
-        if (linePoints == null) {
-            linePoints = new ArrayList<>();
-            numberOfLoops = 0;
-        }
-        linePoints.add(startingPosition.copy());
-        float vectorMag = Constants.CHARGE_RADIUS;
-        if (numberOfLoops < 10) {
-            vectorMag = Constants.CHARGE_RADIUS / 4.0f;
-        }
-        PVector forceVector = netForceAtPoint(startingPosition, pointCharges);
-        forceVector.setMag(vectorMag);
-        PVector nextPosition = PVector.add(startingPosition, forceVector);
-
-        // If the starting position is not too close to any charge, and we haven't looped too many times…
-        boolean nearCharge = false;
-        for (Charge c : pointCharges) {
-            if (PVector.dist(startingPosition, c.getPosition()) < Constants.CHARGE_RADIUS) {
-                nearCharge = true;
-                break;
-            }
-        }
-
-        if (!nearCharge && numberOfLoops < 110) {
-            getFieldLinePoints(nextPosition, numberOfLoops + 1, linePoints);
-        } else {
-            linePoints.add(nextPosition.copy());
-            // Field line is complete; it will be added in the calling method.
         }
     }
 
@@ -340,43 +326,23 @@ public class Simulation {
     }
 
     public void addTestCharge(PVector pos) {
-        testCharges.add(new TestCharge(pos.copy(), Constants.TEST_CHARGE_CHARGE));
+        testCharges.add(chargeFactory.createTestCharge(pos, ConfigManager.getInstance().getTestChargeCharge()));
     }
 
     public void addPointCharge(PVector pos) {
-        PointCharge newCharge = new PointCharge(pos.copy(), 0);
-        pointCharges.add(newCharge);
-        newCharge.select();
+        addPointCharge(pos, 0f);
     }
 
     public void addPointCharge(PVector pos, Float charge) {
-        PointCharge newCharge = new PointCharge(pos.copy(), charge);
-        pointCharges.add(newCharge);
-        newCharge.select();
-    }
-
-    public void handleMouseDraggedLogic(PVector mousePos) {
-        // (existing logic for handling dragging)
-        // For example: update the position of the dragged charge and clear equipotential lines
-    }
-
-//    public boolean isTestChargeMode() {
-//        return testChargeMode;
-//    }
-//
-//    public boolean isShowEquipotentialLines() {
-//        return showEquipotentialLines;
-//    }
-//
-//    public boolean isShowFieldVectors() {
-//        return showFieldVectors;
-//    }
-
-    public void handleKeyPressedLogic(int keyCode) {
+        PointCharge pc = chargeFactory.createPointCharge(pos, charge);
+        pointCharges.add(pc);
+        pc.select();
+        voltageDirty = true;
     }
 
     public void removeAllPointCharges() {
         pointCharges.clear();
+        voltageDirty = true;
     }
 
     public float getWidth() {
@@ -389,5 +355,113 @@ public class Simulation {
 
     public void clearTestCharges() {
         testCharges.clear();
+    }
+
+    public boolean isVoltageDirty() {
+        return voltageDirty;
+    }
+
+    public void moveTestCharges() {
+        for (TestCharge testCharge : testCharges) {
+            testCharge.move(pointCharges);
+        }
+    }
+
+    public void displayTestCharges(PApplet app) {
+        for (TestCharge testCharge : testCharges) {
+            testCharge.display(app);
+        }
+    }
+
+    @Override
+    public void onFieldLinesToggled(boolean on) {
+        if (on) {
+            createFieldLines();
+        } else {
+            fieldLines.clear();
+        }
+    }
+
+    @Override
+    public void onFieldVectorsToggled(boolean on) {
+        if (on) {
+            // regenerate field vectors immediately
+            createFieldVectors();
+        } else {
+            // hide them
+            fieldVectors.clear();
+        }
+    }
+
+    @Override
+    public void onEquipotentialToggled(boolean on) {
+        if (!on) {
+            // clear any existing equipotential lines
+            equiLines.clear();
+        }
+    }
+
+    @Override
+    public void onVoltageToggled(boolean on){
+        // mark voltage map dirty so it’ll be recomputed/displayed on next draw
+        voltageDirty = true;
+    }
+
+    @Override
+    public void onGridToggled(boolean on) {
+        // no immediate action needed—displayGrid() reads the ControlPanel flag
+    }
+
+    @Override
+    public void onSnapToGridToggled(boolean on) {
+        // no action here—InputHandler will pick up the snap setting
+    }
+
+    @Override
+    public void onTestChargeModeToggled(boolean on) {
+        if (!on) {
+            // exiting test-charge mode, clear any stray test charges
+            clearTestCharges();
+        }
+    }
+
+    @Override
+    public void onSinglePreset() {
+        PresetConfigurator.setSingleConfiguration(this);
+    }
+
+    @Override
+    public void onDipolePreset() {
+        PresetConfigurator.setDipoleConfiguration(this);
+    }
+
+    @Override
+    public void onRowPreset() {
+        PresetConfigurator.setRowConfiguration(this);
+    }
+
+    @Override
+    public void onDipoleRowPreset() {
+        PresetConfigurator.setDipoleRowConfiguration(this);
+    }
+
+    @Override
+    public void onRandomPreset() {
+        PresetConfigurator.setRandomConfiguration(this);
+    }
+
+    @Override
+    public void onCreateTestChargeMap() {
+        PresetConfigurator.createTestChargeMap(this);
+    }
+
+    @Override
+    public void onClearTestCharges() {
+        clearTestCharges();
+    }
+
+    @Override
+    public void onRemoveAllCharges() {
+        removeAllPointCharges();
     }
 }

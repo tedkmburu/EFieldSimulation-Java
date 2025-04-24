@@ -6,7 +6,10 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
+import org.example.controller.InputController;
+import org.example.model.SimulationModel;
 import org.example.model.PointCharge;
+import org.example.view.ui.ControlPanel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import processing.core.PApplet;
@@ -16,9 +19,9 @@ import processing.core.PVector;
 public class InputHandlerTest {
 
     private PApplet app;
-    private Simulation simulation;
+    private SimulationModel simulation;
     private ControlPanel controlPanel;
-    private InputHandler inputHandler;
+    private InputController inputController;
 
     @BeforeEach
     public void setup() {
@@ -40,10 +43,10 @@ public class InputHandlerTest {
         };
 
         // Create a Simulation instance.
-        simulation = new Simulation(app, controlPanel);
+        simulation = new SimulationModel(app, controlPanel);
 
         // Create the InputHandler.
-        inputHandler = new InputHandler(app, simulation, controlPanel);
+        inputController = new InputController(app, simulation, controlPanel);
     }
 
     // 1. Mouse Pressed – Charge Selection:
@@ -58,7 +61,7 @@ public class InputHandlerTest {
         for (PointCharge pc : simulation.getPointCharges()) {
             pc.selected = false;
         }
-        inputHandler.handleMousePressed();
+        inputController.handleMousePressed();
         boolean foundSelected = false;
         for (PointCharge pc : simulation.getPointCharges()) {
             if (pc.selected) {
@@ -79,7 +82,7 @@ public class InputHandlerTest {
         app.mouseY = (int) charge.getPosition().y;
         // Call update() so that simulation.mousePosition is set.
         simulation.update();
-        inputHandler.handleMouseDragged();
+        inputController.handleMouseDragged();
         assertTrue(charge.dragging, "Charge should be marked as dragging when mouse is over it during drag.");
 
         // Record old position.
@@ -89,13 +92,13 @@ public class InputHandlerTest {
         app.mouseX = (int) (oldX + 50);
         app.mouseY = (int) (oldY + 50);
         simulation.update();
-        inputHandler.handleMouseDragged();
+        inputController.handleMouseDragged();
         // Verify that the charge's position has updated.
         assertTrue(charge.getPosition().x > oldX, "Charge x position should increase after dragging.");
         assertTrue(charge.getPosition().y > oldY, "Charge y position should increase after dragging.");
 
         // Verify that equipotential lines are cleared.
-        Field equiLinesField = Simulation.class.getDeclaredField("equiLines");
+        Field equiLinesField = SimulationModel.class.getDeclaredField("equiLines");
         equiLinesField.setAccessible(true);
         ArrayList<?> equiLines = (ArrayList<?>) equiLinesField.get(simulation);
         assertTrue(equiLines.isEmpty(), "Equipotential lines should be cleared after dragging a charge.");
@@ -106,7 +109,7 @@ public class InputHandlerTest {
     @Test
     public void testHandleMouseMovedFieldVectorDisplay() {
         // Subclass Simulation to override showForceVectorsOnMouse().
-        class TestSimulation extends Simulation {
+        class TestSimulation extends SimulationModel {
             public boolean forceVectorDisplayed = false;
             public TestSimulation(PApplet parent, ControlPanel cp) {
                 super(parent, cp);
@@ -121,10 +124,10 @@ public class InputHandlerTest {
             @Override public boolean showFieldVectorsMode() { return true; }
         };
         TestSimulation testSim = new TestSimulation(app, controlPanel);
-        inputHandler = new InputHandler(app, testSim, controlPanel);
+        inputController = new InputController(app, testSim, controlPanel);
         // Update simulation to set internal mousePosition.
         testSim.update();
-        inputHandler.handleMouseMoved();
+        inputController.handleMouseMoved();
         assertTrue(testSim.forceVectorDisplayed, "showForceVectorsOnMouse should be executed when showFieldVectorsMode is true.");
     }
 
@@ -140,14 +143,14 @@ public class InputHandlerTest {
         float originalCharge = charge.getCharge();
         // Simulate RIGHT arrow press (increase charge).
         app.keyCode = PConstants.RIGHT;
-        inputHandler.handleKeyPressed();
+        inputController.handleKeyPressed();
         assertTrue(charge.getCharge() > originalCharge, "Charge should increase after RIGHT arrow key press.");
 
         // Now simulate LEFT arrow press (decrease charge).
         charge.selected = true;
         originalCharge = charge.getCharge();
         app.keyCode = PConstants.LEFT;
-        inputHandler.handleKeyPressed();
+        inputController.handleKeyPressed();
         assertTrue(charge.getCharge() < originalCharge, "Charge should decrease after LEFT arrow key press.");
 
         // Simulate DELETE key press to remove a charge.
@@ -156,7 +159,7 @@ public class InputHandlerTest {
         PointCharge newCharge = simulation.getPointCharges().get(simulation.getPointCharges().size() - 1);
         newCharge.selected = true;
         app.keyCode = PConstants.DELETE;
-        inputHandler.handleKeyPressed();
+        inputController.handleKeyPressed();
         int countAfter = simulation.getPointCharges().size();
         assertTrue(countAfter == countBefore - 1, "Charge should be removed after DELETE key press.");
     }
@@ -168,7 +171,7 @@ public class InputHandlerTest {
         // Helper to access equipotential lines count.
         Supplier<Integer> getEquipotentialCount = () -> {
             try {
-                Field equiLinesField = Simulation.class.getDeclaredField("equiLines");
+                Field equiLinesField = SimulationModel.class.getDeclaredField("equiLines");
                 equiLinesField.setAccessible(true);
                 ArrayList<?> equiLines = (ArrayList<?>) equiLinesField.get(simulation);
                 return equiLines.size();
@@ -182,14 +185,14 @@ public class InputHandlerTest {
             @Override public boolean showEquipotentialLinesMode() { return true; }
             @Override public boolean testChargeMode() { return false; }
         };
-        simulation = new Simulation(app, controlPanel);
-        inputHandler = new InputHandler(app, simulation, controlPanel);
+        simulation = new SimulationModel(app, controlPanel);
+        inputController = new InputController(app, simulation, controlPanel);
         // Set mouse coordinates and update simulation.
         app.mouseX = 250;
         app.mouseY = 250;
         simulation.update();
         int initialEquiCount = getEquipotentialCount.get();
-        inputHandler.handleMouseClicked();
+        inputController.handleMouseClicked();
         int afterEquiCount = getEquipotentialCount.get();
         assertTrue(afterEquiCount > initialEquiCount, "An equipotential line should be created when equipotential mode is active.");
 
@@ -198,11 +201,11 @@ public class InputHandlerTest {
             @Override public boolean showEquipotentialLinesMode() { return false; }
             @Override public boolean testChargeMode() { return true; }
         };
-        simulation = new Simulation(app, controlPanel);
-        inputHandler = new InputHandler(app, simulation, controlPanel);
+        simulation = new SimulationModel(app, controlPanel);
+        inputController = new InputController(app, simulation, controlPanel);
         simulation.update();
         int initialTestChargeCount = simulation.getTestCharges().size();
-        inputHandler.handleMouseClicked();
+        inputController.handleMouseClicked();
         int afterTestChargeCount = simulation.getTestCharges().size();
         assertEquals(initialTestChargeCount + 1, afterTestChargeCount, "A test charge should be added when test charge mode is active.");
 
@@ -211,14 +214,14 @@ public class InputHandlerTest {
             @Override public boolean showEquipotentialLinesMode() { return false; }
             @Override public boolean testChargeMode() { return false; }
         };
-        simulation = new Simulation(app, controlPanel);
-        inputHandler = new InputHandler(app, simulation, controlPanel);
+        simulation = new SimulationModel(app, controlPanel);
+        inputController = new InputController(app, simulation, controlPanel);
         // Set mouse coordinates away from any existing charge.
         app.mouseX = 50;
         app.mouseY = 50;
         simulation.update();
         int initialPointChargeCount = simulation.getPointCharges().size();
-        inputHandler.handleMouseClicked();
+        inputController.handleMouseClicked();
         int afterPointChargeCount = simulation.getPointCharges().size();
         assertEquals(initialPointChargeCount + 1, afterPointChargeCount, "A new point charge should be added when in default mode.");
     }

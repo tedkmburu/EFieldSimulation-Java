@@ -1,17 +1,24 @@
-package org.example;
+package org.example.view.ui;
 
 import controlP5.*;
+import org.example.model.SimulationModel;
+import org.example.controller.commands.CreateTestChargeMapCommand;
+import org.example.controller.commands.Invoker;
+import org.example.controller.commands.ToggleFieldLinesCommand;
+import org.example.model.config.ConfigManager;
 import processing.core.PApplet;
 
-import static org.example.Constants.*;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class ControlPanel {
     private PApplet parent;
     private ControlP5 cp5;
-    private Simulation simulation;
+    private SimulationModel simulation;
 
     // Example booleans to reflect Toggle states
-    private boolean showFieldLines = false;
+    private boolean showFieldLines = true;
     private boolean showFieldVectors = false;
     private boolean showEquipotentialLines = false;
     private boolean showVoltage = false;
@@ -20,12 +27,86 @@ public class ControlPanel {
     private boolean snapToGrid = false;
     private boolean testChargeMode = false;
 
+    private final List<ControlPanelListener> listeners = new ArrayList<>();
+    private final Invoker invoker = new Invoker();
 
-    public ControlPanel(PApplet parent, Simulation simulation) {
+    public void addListener(ControlPanelListener l) {
+        listeners.add(l);
+    }
+    public void removeListener(ControlPanelListener l) {
+        listeners.remove(l);
+    }
+
+    public void controlEvent(ControlEvent e) {
+        String name = e.getController().getName();
+        boolean value = e.getController().getValue() == 1.0;
+        switch (name) {
+            case "fieldLinesToggle":
+                invoker.execute(new ToggleFieldLinesCommand(simulation, this));
+                break;
+            case "fieldVectorsToggle":
+                showFieldVectors = value;
+                listeners.forEach(l -> l.onFieldVectorsToggled(value));
+                break;
+            case "equipotentialToggle":
+                showEquipotentialLines = value;
+                listeners.forEach(l -> l.onEquipotentialToggled(value));
+                break;
+            case "voltageToggle":
+                showVoltage = value;
+                listeners.forEach(l -> l.onVoltageToggled(value));
+                break;
+            case "showGridToggle":
+                showGrid = value;
+                listeners.forEach(l -> l.onGridToggled(value));
+                break;
+            case "snapToGridToggle":
+                snapToGrid = value;
+                listeners.forEach(l -> l.onSnapToGridToggled(value));
+                break;
+            case "testChargeModeToggle":
+                testChargeMode = value;
+                listeners.forEach(l -> l.onTestChargeModeToggled(value));
+                break;
+
+            case "singleButton":
+                listeners.forEach(ControlPanelListener::onSinglePreset);
+                break;
+            case "dipoleButton":
+                listeners.forEach(ControlPanelListener::onDipolePreset);
+                break;
+            case "rowButton":
+                listeners.forEach(ControlPanelListener::onRowPreset);
+                break;
+            case "dipoleRowButton":
+                listeners.forEach(ControlPanelListener::onDipoleRowPreset);
+                break;
+            case "randomButton":
+                listeners.forEach(ControlPanelListener::onRandomPreset);
+                break;
+            case "removeAllButton":
+                listeners.forEach(ControlPanelListener::onRemoveAllCharges);
+                break;
+            case "createTestChargeMapButton":
+                this.testChargeMode = true;
+                invoker.execute(new CreateTestChargeMapCommand(simulation, this));
+                break;
+            case "clearTestChargesButton":
+                listeners.forEach(ControlPanelListener::onClearTestCharges);
+                break;
+        }
+    }
+
+    public void toggleFieldLines(boolean on) {
+        this.showFieldLines = on;
+        listeners.forEach(l -> l.onFieldLinesToggled(on));
+    }
+
+    public ControlPanel(PApplet parent, SimulationModel simulation) {
         this(parent, simulation, false);  // calls the 3-arg constructor
     }
 
-    public ControlPanel(PApplet parent, Simulation simulation, boolean skipUI) {
+    public ControlPanel(PApplet parent, SimulationModel simulation, boolean skipUI) {
         this.parent = parent;
         this.simulation = simulation;
 
@@ -36,25 +117,12 @@ public class ControlPanel {
         }
     }
 
-//    public ControlPanel(PApplet parent, Simulation simulation) {
-//        this.parent = parent;
-//        this.simulation = simulation;
-//
-//        cp5 = new ControlP5(parent);
-//
-//        createGUI();
-//    }
-
-    public void setSimulation(Simulation simulation) {
+    public void setSimulation(SimulationModel simulation) {
         this.simulation = simulation;
     }
 
-    /**
-     * Creates the UI elements using ControlP5.
-     * Positions are chosen so that everything appears on the right side.
-     */
     private void createGUI() {
-        int panelX = parent.width - SIDE_PANEL_WIDTH; // near the right edge
+        int panelX = parent.width - ConfigManager.getInstance().getSidePanelWidth(); // near the right edge
         int startY = 30;
         int spacing = 40;
         int ToggleSize = 20;
@@ -70,8 +138,7 @@ public class ControlPanel {
         cp5.addToggle("fieldLinesToggle")
                 .setPosition(panelX, startY)
                 .setSize(ToggleSize, ToggleSize)
-//                .activate(0) // make it checked by default if desired
-                .setValue(true)
+                .setValue(showFieldLines)
                 .setColorLabel(textColor)
                 .setLabel("Field Lines");
         startY += spacing;
@@ -80,9 +147,8 @@ public class ControlPanel {
         cp5.addToggle("fieldVectorsToggle")
                 .setPosition(panelX, startY)
                 .setSize(ToggleSize, ToggleSize)
-//                .addItem("Field Vectors", 1)
                 .setColorLabel(textColor)
-                .setValue(true)
+                .setValue(showFieldVectors)
                 .setLabel("Field Vectors");
         startY += spacing;
 
@@ -90,7 +156,7 @@ public class ControlPanel {
         cp5.addToggle("equipotentialToggle")
                 .setPosition(panelX, startY)
                 .setSize(ToggleSize, ToggleSize)
-//                .addItem("Equipotential Lines", 1)
+                .setValue(showEquipotentialLines)
                 .setColorLabel(textColor)
                 .setLabel("Equipotential Lines");
         startY += spacing;
@@ -99,8 +165,8 @@ public class ControlPanel {
         cp5.addToggle("voltageToggle")
                 .setPosition(panelX, startY)
                 .setSize(ToggleSize, ToggleSize)
-//                .addItem("Voltage", 1)
                 .setColorLabel(textColor)
+                .setValue(showVoltage)
                 .setLabel("Voltage");
         startY += spacing;
 
@@ -109,9 +175,10 @@ public class ControlPanel {
         cp5.addToggle("numericalValueToggle")
                 .setPosition(panelX, startY)
                 .setSize(ToggleSize, ToggleSize)
-//                .addItem("Numerical Value", 1)
+                .setValue(numericalValue)
                 .setColorLabel(textColor)
                 .setLabel("Numerical Value");
+
         startY += spacing;
         panelX -= ToggleSize;
 
@@ -120,10 +187,8 @@ public class ControlPanel {
         cp5.addToggle("showGridToggle")
                 .setPosition(panelX, startY)
                 .setSize(ToggleSize, ToggleSize)
-//                .addItem("Show Grid", 1)
-//                .activate(0) // checked by default
                 .setColorLabel(textColor)
-                .setValue(true)
+                .setValue(showGrid)
                 .setLabel("Show Grid");
         startY += spacing;
 
@@ -132,9 +197,10 @@ public class ControlPanel {
         cp5.addToggle("snapToGridToggle")
                 .setPosition(panelX, startY)
                 .setSize(ToggleSize, ToggleSize)
-//                .addItem("Snap to Grid", 1)
                 .setColorLabel(textColor)
+                .setValue(snapToGrid)
                 .setLabel("Snap to Grid");
+
         startY += spacing * 2;
         panelX -= ToggleSize;
 
@@ -197,7 +263,6 @@ public class ControlPanel {
         cp5.addToggle("testChargeModeToggle")
                 .setPosition(panelX, startY)
                 .setSize(ToggleSize, ToggleSize)
-//                .addItem("Test Charge Mode", 1)
                 .setColorLabel(textColor)
                 .setLabel("Test Charge Mode");
         startY += spacing;
@@ -216,70 +281,6 @@ public class ControlPanel {
                 .setLabel("Clear Test Charges");
     }
 
-    /**
-     * Called automatically by ControlP5 when a UI element changes or a button is clicked.
-     */
-    public void controlEvent(ControlEvent e) {
-        String controllerName = e.getController().getName();
-
-        // For each Toggle or button, handle the logic you want:
-        switch (controllerName) {
-            // Togglees
-            case "fieldLinesToggle":
-                showFieldLines = e.getController().getValue() == 1.0;
-                break;
-            case "fieldVectorsToggle":
-                showFieldVectors = e.getController().getValue() == 1.0;
-
-                break;
-            case "equipotentialToggle":
-                showEquipotentialLines = e.getController().getValue() == 1.0;;
-                break;
-            case "voltageToggle":
-                showVoltage = e.getController().getValue() == 1.0;
-                break;
-            case "numericalValueToggle":
-                numericalValue = e.getController().getValue() == 1.0;
-                break;
-            case "showGridToggle":
-                showGrid = e.getController().getValue() == 1.0;
-                break;
-            case "snapToGridToggle":
-                snapToGrid = e.getController().getValue() == 1.0;
-                break;
-            case "testChargeModeToggle":
-                testChargeMode = e.getController().getValue() == 1.0;;
-                break;
-
-            // Buttons
-            case "singleButton":
-                PredefinedConfigs.setSingleConfiguration(simulation);
-                break;
-            case "dipoleButton":
-                PredefinedConfigs.setDipoleConfiguration(simulation);
-                break;
-            case "rowButton":
-                PredefinedConfigs.setRowConfiguration(simulation);
-                break;
-            case "dipoleRowButton":
-                PredefinedConfigs.setDipoleRowConfiguration(simulation);
-                break;
-            case "randomButton":
-                PredefinedConfigs.setRandomConfiguration(simulation);
-                break;
-            case "removeAllButton":
-                simulation.removeAllPointCharges();
-                break;
-            case "createTestChargeMapButton":
-                testChargeMode = true;
-                PredefinedConfigs.createTestChargeMap(simulation);
-                break;
-            case "clearTestChargesButton":
-                simulation.clearTestCharges();
-                break;
-        }
-    }
-
     // Getters for Simulation code to see which flags are on/off
     public boolean showFieldLinesMode() { return showFieldLines; }
     public boolean showFieldVectorsMode() { return showFieldVectors; }
@@ -289,4 +290,7 @@ public class ControlPanel {
     public boolean showGridMode() { return showGrid; }
     public boolean snapToGridMode() { return snapToGrid; }
     public boolean testChargeMode() { return testChargeMode; }
+
+    public void toggleTestChargeMode(boolean b) {
+    }
 }

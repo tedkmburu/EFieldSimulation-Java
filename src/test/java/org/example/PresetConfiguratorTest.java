@@ -2,16 +2,20 @@ package org.example;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.example.model.config.ConfigManager;
+import org.example.model.PresetConfigurator;
+import org.example.model.SimulationModel;
 import org.example.model.PointCharge;
+import org.example.view.ui.ControlPanel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import processing.core.PApplet;
 import processing.core.PVector;
 
-public class PredefinedConfigsTest {
+public class PresetConfiguratorTest {
 
     private PApplet app;
-    private Simulation simulation;
+    private SimulationModel simulation;
     private ControlPanel controlPanel;
 
     @BeforeEach
@@ -26,7 +30,7 @@ public class PredefinedConfigsTest {
         controlPanel = new ControlPanel(app, null, true) {
             // For these tests, mode getters are not needed.
         };
-        simulation = new Simulation(app, controlPanel);
+        simulation = new SimulationModel(app, controlPanel);
     }
 
     // Single Configuration:
@@ -34,7 +38,7 @@ public class PredefinedConfigsTest {
     // has exactly one charge positioned at the center.
     @Test
     public void testSingleConfiguration() {
-        PredefinedConfigs.setSingleConfiguration(simulation);
+        PresetConfigurator.setSingleConfiguration(simulation);
         assertEquals(1, simulation.getPointCharges().size(), "There should be exactly one point charge");
 
         PointCharge charge = simulation.getPointCharges().get(0);
@@ -54,7 +58,7 @@ public class PredefinedConfigsTest {
     public void testDipoleConfiguration() {
         // First, add a dummy charge to verify removal.
         simulation.addPointCharge(new PVector(0, 0), 0f);
-        PredefinedConfigs.setDipoleConfiguration(simulation);
+        PresetConfigurator.setDipoleConfiguration(simulation);
         assertEquals(2, simulation.getPointCharges().size(), "Dipole configuration should result in exactly 2 point charges");
 
         PointCharge charge1 = simulation.getPointCharges().get(0);
@@ -75,7 +79,7 @@ public class PredefinedConfigsTest {
     // Check that setRowConfiguration(simulation) results in exactly four charges arranged with correct spacing.
     @Test
     public void testRowConfiguration() {
-        PredefinedConfigs.setRowConfiguration(simulation);
+        PresetConfigurator.setRowConfiguration(simulation);
         assertEquals(4, simulation.getPointCharges().size(), "Row configuration should create 4 point charges");
 
         float spacing = 75f;
@@ -97,7 +101,7 @@ public class PredefinedConfigsTest {
     // with each dipole arranged as expected.
     @Test
     public void testDipoleRowConfiguration() {
-        PredefinedConfigs.setDipoleRowConfiguration(simulation);
+        PresetConfigurator.setDipoleRowConfiguration(simulation);
         assertEquals(8, simulation.getPointCharges().size(), "Dipole row configuration should produce 8 charges (4 dipoles)");
 
         float spacing = 75f;
@@ -129,14 +133,14 @@ public class PredefinedConfigsTest {
     // fall within the simulation’s width (minus side panel) and height.
     @Test
     public void testRandomConfiguration() {
-        PredefinedConfigs.setRandomConfiguration(simulation);
+        PresetConfigurator.setRandomConfiguration(simulation);
         assertEquals(10, simulation.getPointCharges().size(), "Random configuration should create 10 point charges");
 
         for (PointCharge charge : simulation.getPointCharges()) {
             float x = charge.getPosition().x;
             float y = charge.getPosition().y;
             // x should be between 0 and (width - SIDE_PANEL_WIDTH) and y between 0 and height.
-            assertTrue(x >= 0 && x <= app.width - Constants.SIDE_PANEL_WIDTH,
+            assertTrue(x >= 0 && x <= app.width - ConfigManager.getInstance().getSidePanelWidth(),
                     "Charge x position should be within the valid range");
             assertTrue(y >= 0 && y <= app.height,
                     "Charge y position should be within the valid range");
@@ -151,12 +155,12 @@ public class PredefinedConfigsTest {
     // according to the grid dimensions computed from GRID_SIZE.
     @Test
     public void testCreateTestChargeMap() {
-        PredefinedConfigs.createTestChargeMap(simulation);
+        PresetConfigurator.createTestChargeMap(simulation);
         int testChargeCount = simulation.getTestCharges().size();
 
         // Calculate expected number of test charges.
-        int cols = (int) ((app.width - Constants.SIDE_PANEL_WIDTH) / Constants.GRID_SIZE);
-        int rows = (int) (app.height / Constants.GRID_SIZE);
+        int cols = (int) ((app.width - ConfigManager.getInstance().getSidePanelWidth()) / ConfigManager.getInstance().getGridSize());
+        int rows = (int) (app.height / ConfigManager.getInstance().getGridSize());
         // Charges are added in steps of 2 for both x and y:
         int expectedCols = (cols + 1) / 2; // integer division rounding down is acceptable if cols is even.
         int expectedRows = (rows + 1) / 2;
@@ -173,7 +177,7 @@ public class PredefinedConfigsTest {
         simulation.addTestCharge(new PVector(10, 10));
         simulation.addTestCharge(new PVector(20, 20));
         assertTrue(!simulation.getTestCharges().isEmpty(), "There should be test charges before clearing.");
-        PredefinedConfigs.clearTestCharges(simulation);
+        PresetConfigurator.clearTestCharges(simulation);
         assertTrue(simulation.getTestCharges().isEmpty(), "Test charges list should be empty after clearing.");
     }
 }

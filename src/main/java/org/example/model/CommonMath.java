@@ -1,15 +1,11 @@
-package org.example;
+package org.example.model;
 
-import org.example.model.Charge;
-import org.example.model.PointCharge;
+import org.example.model.config.ConfigManager;
 import processing.core.PVector;
 
-import static org.example.Simulation.*;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import static org.example.Constants.COULOMBS_CONSTANT;
 
 public class CommonMath {
 
@@ -22,17 +18,12 @@ public class CommonMath {
             PVector diff = PVector.sub(pointCharge.getPosition(), pos);
             float r = diff.mag();
             if (r < minDistance) r = minDistance;
-            float forceMag = COULOMBS_CONSTANT * pointCharge.getCharge() / (r * r);
+            float forceMag = ConfigManager.getInstance().getCoulombsConstant() * pointCharge.getCharge() / (r * r);
             diff.normalize();
             diff.mult(forceMag);
             netForce.add(diff);
         }
         return netForce;
-    }
-
-    // method to check if a point is inside a PointCharge's circle.
-    public static boolean mouseIsInsideCharge(PVector point, PointCharge charge) {
-        return PVector.dist(point, charge.getPosition()) < Constants.CHARGE_RADIUS;
     }
 
     public static float voltageAtPoint(PVector point, ArrayList<PointCharge> pointCharges) {
@@ -43,13 +34,18 @@ public class CommonMath {
             if (r < 0.5f) { // avoid division by zero
                 r = 0.5f;
             }
-            // Voltage: V = K * q / r (adjust units as needed)
-            voltage += COULOMBS_CONSTANT * pointCharge.getCharge() / r;
+            // V = K * q / r
+            voltage += ConfigManager.getInstance().getCoulombsConstant() * pointCharge.getCharge() / r;
         }
         return voltage;
     }
 
     public static PVector createVector() {
         return new PVector(0, 0);
+    }
+
+    // method to check if a point is inside a PointCharge's circle.
+    public static boolean mouseIsInsideCharge(PVector point, PointCharge charge) {
+        return PVector.dist(point, charge.getPosition()) < ConfigManager.getInstance().getChargeRadius();
     }
 }

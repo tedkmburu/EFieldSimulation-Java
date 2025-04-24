@@ -5,8 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
+import org.example.model.SimulationModel;
 import org.example.model.PointCharge;
 import org.example.model.TestCharge;
+import org.example.view.ui.ControlPanel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import processing.core.PApplet;
@@ -50,7 +52,7 @@ public class SimulationTest {
     @Test
     public void testConstructorInitialization() {
         ControlPanel cp = createControlPanel(app, false, false, false, false, false);
-        Simulation simulation = new Simulation(app, cp);
+        SimulationModel simulation = new SimulationModel(app, cp);
         ArrayList<PointCharge> pointCharges = simulation.getPointCharges();
         assertTrue(pointCharges.size() == 2, "Should have exactly 2 point charges on initialization");
         boolean hasPositive = false;
@@ -70,9 +72,9 @@ public class SimulationTest {
     @Test
     public void testUpdateFieldVectorsMode() throws Exception {
         ControlPanel cp = createControlPanel(app, true, false, false, false, false);
-        Simulation simulation = new Simulation(app, cp);
+        SimulationModel simulation = new SimulationModel(app, cp);
         // Use reflection to access the private field "fieldVectors"
-        Field fieldVectorsField = Simulation.class.getDeclaredField("fieldVectors");
+        Field fieldVectorsField = SimulationModel.class.getDeclaredField("fieldVectors");
         fieldVectorsField.setAccessible(true);
         ArrayList<?> fieldVectorsBefore = (ArrayList<?>) fieldVectorsField.get(simulation);
         int sizeBefore = fieldVectorsBefore.size();
@@ -84,7 +86,7 @@ public class SimulationTest {
     @Test
     public void testUpdateTestChargeMode() {
         ControlPanel cp = createControlPanel(app, false, true, false, false, false);
-        Simulation simulation = new Simulation(app, cp);
+        SimulationModel simulation = new SimulationModel(app, cp);
         // Add a test charge at a known position.
         PVector initialPos = new PVector(100, 100);
         simulation.addTestCharge(initialPos);
@@ -99,16 +101,16 @@ public class SimulationTest {
     @Test
     public void testUpdateFieldLinesAndVoltageModes() throws Exception {
         ControlPanel cp = createControlPanel(app, false, false, true, true, false);
-        Simulation simulation = new Simulation(app, cp);
+        SimulationModel simulation = new SimulationModel(app, cp);
         simulation.update();
         // Verify fieldLines is populated.
-        Field fieldLinesField = Simulation.class.getDeclaredField("fieldLines");
+        Field fieldLinesField = SimulationModel.class.getDeclaredField("fieldLines");
         fieldLinesField.setAccessible(true);
         ArrayList<?> fieldLines = (ArrayList<?>) fieldLinesField.get(simulation);
         assertTrue(fieldLines.size() > 0, "Field lines should be created when showFieldLinesMode is active.");
 
         // Verify the voltage grid is updated.
-        Field voltageGradientField = Simulation.class.getDeclaredField("voltageGradient");
+        Field voltageGradientField = SimulationModel.class.getDeclaredField("voltageGradient");
         voltageGradientField.setAccessible(true);
         Object voltageGradientObj = voltageGradientField.get(simulation);
         Field gridField = voltageGradientObj.getClass().getDeclaredField("grid");
@@ -131,7 +133,7 @@ public class SimulationTest {
     @Test
     public void testChargeSelection() {
         ControlPanel cp = createControlPanel(app, false, false, false, false, false);
-        Simulation simulation = new Simulation(app, cp);
+        SimulationModel simulation = new SimulationModel(app, cp);
         // Use a point inside the first charge's circle (default first charge at (200,200)).
         PVector pos = new PVector(200, 200);
         boolean result = simulation.selectChargeAtPosition(pos);
@@ -150,7 +152,7 @@ public class SimulationTest {
     @Test
     public void testAddingCharges() {
         ControlPanel cp = createControlPanel(app, false, false, false, false, false);
-        Simulation simulation = new Simulation(app, cp);
+        SimulationModel simulation = new SimulationModel(app, cp);
         int initialTestChargeCount = simulation.getTestCharges().size();
         PVector testPos = new PVector(50, 50);
         simulation.addTestCharge(testPos);
@@ -168,7 +170,7 @@ public class SimulationTest {
     @Test
     public void testResetStates() {
         ControlPanel cp = createControlPanel(app, false, false, false, false, false);
-        Simulation simulation = new Simulation(app, cp);
+        SimulationModel simulation = new SimulationModel(app, cp);
         // Manually set flags to true for each point charge.
         for (PointCharge pc : simulation.getPointCharges()) {
             pc.selected = true;

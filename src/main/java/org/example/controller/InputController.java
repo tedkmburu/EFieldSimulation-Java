@@ -1,52 +1,31 @@
-package org.example;
+package org.example.controller;
 
+import org.example.model.config.ConfigManager;
 import org.example.model.*;
+import org.example.view.ui.ControlPanel;
 import processing.core.*;
 
-import static org.example.CommonMath.*;
-import static org.example.Constants.*;
-import static org.example.ControlPanel.*;
+import static org.example.model.CommonMath.*;
 
 import java.util.ArrayList;
 
-public class InputHandler {
+public class InputController {
     private static PApplet parent;
-    private static Simulation simulation;
+    private static SimulationModel simulation;
     private static ControlPanel controlPanel;
 
-    public InputHandler(PApplet parent, Simulation simulation, ControlPanel controlPanel) {
-        InputHandler.parent = parent;
-        InputHandler.simulation = simulation;
-        InputHandler.controlPanel = controlPanel;
-    }
-
-    public void handleMousePressed() {
-        // Get the current mouse position from the parent PApplet.
-        PVector mousePos = new PVector(parent.mouseX, parent.mouseY);
-
-//        // If we're in equipotential line mode, create an equipotential line from the click position.
-//        if (simulation.showEquipotentialLinesMode()) {
-//            simulation.createEquipotentialLine(mousePosition.copy());
-//        }
-//
-//        // If test charge mode is active, add a new TestCharge at the mouse position.
-//        if (simulation.isTestChargeMode()) {
-//            simulation.addTestCharge(mousePosition.copy());
-//        }
-//
-//        // Reset dragging/selected flags for all point charges.
-//        simulation.resetChargeStates();
-//
-//        // Check if a point charge was clicked.
-//        boolean chargeSelected = simulation.selectChargeAtPosition(mousePos);
-//        if (!chargeSelected && !simulation.isTestChargeMode() && !simulation.isShowEquipotentialLines()) {
-//            simulation.addPointCharge(mousePos);
-//        }
+    public InputController(PApplet parent, SimulationModel simulation, ControlPanel controlPanel) {
+        InputController.parent = parent;
+        InputController.simulation = simulation;
+        InputController.controlPanel = controlPanel;
     }
 
     public void handleMouseDragged() {
         // Get the current mouse position
         PVector mousePos = simulation.getMousePosition();
+        Integer SIDE_PANEL_WIDTH = ConfigManager.getInstance().getSidePanelWidth();
+        Integer SIDE_PANEL_PADDING = ConfigManager.getInstance().getSidePanelPadding();
+        Float CHARGE_RADIUS = ConfigManager.getInstance().getChargeRadius();
         if (mousePos.x > simulation.getWidth() - SIDE_PANEL_WIDTH - SIDE_PANEL_PADDING - CHARGE_RADIUS) {
             mousePos.x = simulation.getWidth() - SIDE_PANEL_WIDTH - SIDE_PANEL_PADDING - CHARGE_RADIUS;
         }
@@ -84,7 +63,17 @@ public class InputHandler {
 
         // If a charge is being dragged, update its position.
         if (chargeToMove != null) {
-            chargeToMove.setPosition(mousePos);
+            if (controlPanel.snapToGridMode()) {
+                float g = ConfigManager.getInstance().getGridSize();
+                float snappedX = Math.round(mousePos.x / g) * g;
+                float snappedY = Math.round(mousePos.y / g) * g;
+                chargeToMove.setPosition(new PVector(snappedX, snappedY));
+
+            }
+            else {
+                chargeToMove.setPosition(mousePos);
+            }
+            simulation.voltageDirty = true;
             // Clear equipotential lines if a charge is being dragged.
             simulation.clearEquipotentialLines();
         }
@@ -106,11 +95,11 @@ public class InputHandler {
             PointCharge pointCharge = pointCharges.get(i);
             if (pointCharge.selected) {
                 // Increase charge when right arrow is pressed.
-                if (kc == PConstants.RIGHT && pointCharge.getCharge() < POINT_CHARGE_MAX_VALUE) {
+                if (kc == PConstants.RIGHT && pointCharge.getCharge() < ConfigManager.getInstance().getPointChargeMaxValue()) {
                     pointCharge.increaseCharge();
                 }
                 // Decrease charge when left arrow is pressed.
-                else if (kc == PConstants.LEFT && pointCharge.getCharge() > POINT_CHARGE_MIN_VALUE) {
+                else if (kc == PConstants.LEFT && pointCharge.getCharge() > ConfigManager.getInstance().getPointChargeMinValue()) {
                     pointCharge.decreaseCharge();
                 }
                 // Remove the charge if DELETE (or BACKSPACE) is pressed.
@@ -124,11 +113,7 @@ public class InputHandler {
 
     public void handleMouseClicked() {
         ArrayList<PointCharge> pointCharges = simulation.getPointCharges();
-        ArrayList<TestCharge> testCharges = simulation.getTestCharges();
         PVector mousePosition = simulation.getMousePosition();
-
-        // Get the current mouse position from the parent PApplet.
-//        PVector mousePos = new PVector(parent.mouseX, parent.mouseY);
 
         // If we're in equipotential line mode, create an equipotential line from the click position.
         if (controlPanel.showEquipotentialLinesMode()) {
@@ -137,8 +122,8 @@ public class InputHandler {
 
         // If test charge mode is active, add a new TestCharge at the mouse position.
         if (controlPanel.testChargeMode()) {
-            // Make sure you have a testCharges ArrayList and a constant for the test charge's charge.
-            testCharges.add(new TestCharge(mousePosition.copy(), Constants.TEST_CHARGE_CHARGE));
+            simulation.addTestCharge(mousePosition.copy());
+            return;
         }
 
         // For every charge, reset dragging and selected flags.
@@ -159,8 +144,7 @@ public class InputHandler {
 
         if (!chargeSelected && !controlPanel.testChargeMode() && !controlPanel.showEquipotentialLinesMode()) {
             // add a point charge on mouse click
-            pointCharges.add(new PointCharge(simulation.getMousePosition(), 0));
-            pointCharges.getLast().select();
+            simulation.addPointCharge(mousePosition);
         }
 
     }

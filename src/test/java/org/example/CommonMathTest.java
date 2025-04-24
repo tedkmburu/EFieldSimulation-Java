@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 
-import org.example.CommonMath;
+import org.example.model.CommonMath;
 import org.example.model.PointCharge;
 import org.junit.jupiter.api.Test;
 

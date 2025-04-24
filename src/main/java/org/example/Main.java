@@ -1,18 +1,17 @@
 package org.example;
 
-import org.example.model.PointCharge;
+import org.example.model.config.ConfigManager;
+import org.example.controller.InputController;
+import org.example.model.PresetConfigurator;
+import org.example.model.SimulationModel;
+import org.example.view.ui.ControlPanel;
 import processing.core.PApplet;
 import controlP5.ControlEvent;
 
-import java.util.ArrayList;
-
-import static org.example.Constants.*;
-
 public class Main extends PApplet {
-    Simulation simulation; // Holds simulation logic
-    InputHandler inputHandler;
+    SimulationModel simulation; // Holds simulation logic
+    InputController inputController;
     private ControlPanel controlPanel;
-//    ControlP5 cp5;
 
     public static void main(String[] args) {
         PApplet.main("org.example.Main");
@@ -26,10 +25,13 @@ public class Main extends PApplet {
     @Override
     public void setup() {
         this.controlPanel = new ControlPanel(this, null);
-        this.simulation = new Simulation(this, controlPanel);
-        this.inputHandler = new InputHandler(this, simulation, controlPanel);
+        this.simulation = new SimulationModel(this, controlPanel);
+        this.inputController = new InputController(this, simulation, controlPanel);
 
         controlPanel.setSimulation(simulation);
+        controlPanel.addListener(simulation);
+
+        PresetConfigurator.setDipoleConfiguration(simulation);
     }
 
     public void controlEvent(ControlEvent e) {
@@ -46,28 +48,24 @@ public class Main extends PApplet {
         simulation.display();  // Draw simulation elements (charges, field lines, etc.)
     }
 
-    @Override
-    public void mousePressed() {
-        inputHandler.handleMousePressed();
-    }
 
     @Override
     public void mouseMoved() {
-        inputHandler.handleMouseMoved();
+        inputController.handleMouseMoved();
     }
 
     @Override
     public void keyPressed() {
-        inputHandler.handleKeyPressed();
+        inputController.handleKeyPressed();
     }
 
     @Override
-    public void mouseDragged() { inputHandler.handleMouseDragged(); }
+    public void mouseDragged() { inputController.handleMouseDragged(); }
 
     @Override
     public void mouseClicked() {
-        if (mouseX < displayWidth - SIDE_PANEL_WIDTH){
-            inputHandler.handleMouseClicked();
+        if (mouseX < displayWidth - ConfigManager.getInstance().getSidePanelWidth()){
+            inputController.handleMouseClicked();
         }
     }
 
