@@ -5,7 +5,6 @@ import processing.core.PApplet;
 import processing.core.PVector;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ProcessingFieldElementFactory implements FieldElementFactory {
     @Override
@@ -17,9 +16,4 @@ public class ProcessingFieldElementFactory implements FieldElementFactory {
     public EquiLine createEquiLine(PApplet app, ArrayList<PVector> points, float voltage) {
         return new EquiLine(app, points, voltage);
     }
-
-//    @Override
-//    public FieldLine createFieldLine(PApplet app, PVector start, ArrayList<PointCharge> charges) {
-//        return new FieldLine(app, start, charges);
-//    }
 }
