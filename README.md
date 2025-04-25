@@ -38,18 +38,18 @@ Users can add, drag, and customize charges in real time, as well as explore seve
 
 ## Features
 
-- ✔️ **Dynamic Point Charges**: Place positive, negative, or neutral charges interactively  
-- ✔️ **Visualization Modes**  
+- **Dynamic Point Charges**: Place positive, negative, or neutral charges interactively  
+- **Visualization Modes**  
   - Field Lines  
   - Field Vectors (grid & mouse)  
   - Equipotential Lines  
   - Voltage Gradient  
-- ✔️ **Preset Configurations**: Single, Dipole, Row, Dipole-Row, Random  
-- ✔️ **Test Charge Mapping**: Simulate a “test charge” exploring the field  
-- ✔️ **Grid & Snap-to-Grid** for precise placement  
-- ✔️ **Undo/Redo** via Command Pattern  
-- ✔️ **Side-Panel UI**: Toggle modes, change parameters, clear/reset  
-- ✔️ **JUnit Test Suite**: Ensures core model and interaction logic  
+- **Preset Configurations**: Single, Dipole, Row, Dipole-Row, Random  
+- **Test Charge Mapping**: Simulate a “test charge” exploring the field  
+- **Grid & Snap-to-Grid** for precise placement  
+- **Undo/Redo** via Command Pattern  
+- **Side-Panel UI**: Toggle modes, change parameters, clear/reset  
+- **JUnit Test Suite**: Ensures core model and interaction logic  
 
 ---
 
@@ -64,6 +64,55 @@ Users can add, drag, and customize charges in real time, as well as explore seve
 - **Config Manager** (`org.example.model.config.ConfigManager`) centralizes constants  
 
 ---
+
+## Software Design Patterns
+
+To keep the codebase modular, extensible, and maintainable, the Java simulation uses several classical patterns:
+
+- **Singleton (ConfigManager)**  
+  A thread-safe singleton centralizes all “magic constants” (Coulomb’s constant, grid size, UI colors), so they’re easy to tweak in one place without scattering literals through the code. :contentReference[oaicite:0]{index=0}&#8203;:contentReference[oaicite:1]{index=1}
+
+- **Factory Method / Abstract Factory (ChargeFactory & FieldElementFactory)**  
+  Abstracts creation of `PointCharge`, `TestCharge`, `FieldVector`, and `EquiLine` objects. New element types can be plugged in simply by providing a new factory implementation. :contentReference[oaicite:2]{index=2}&#8203;:contentReference[oaicite:3]{index=3}
+
+- **Observer (ControlPanelListener)**  
+  Decouples UI controls from simulation logic. The side-panel fires events (toggle modes, presets, etc.) to listeners in the model, avoiding hard-wired dependencies. :contentReference[oaicite:4]{index=4}&#8203;:contentReference[oaicite:5]{index=5}
+
+- **Strategy (SimulationMode)**  
+  Each visualization mode (field lines, field vectors, equipotentials, voltage gradient, test charges) implements a common `SimulationMode` interface with `update()` and `display()` methods. The `SimulationModel` simply loops through all _active_ modes each frame. :contentReference[oaicite:6]{index=6}&#8203;:contentReference[oaicite:7]{index=7}
+
+- **Command (User Actions + Undo/Redo)**  
+  All user actions (add/remove charges, create test-charge map, presets) are encapsulated as commands with `execute()` and `undo()` methods. An `Invoker` maintains a history stack for undo/redo functionality. :contentReference[oaicite:8]{index=8}&#8203;:contentReference[oaicite:9]{index=9}
+
+
+## Mode Implementation (Strategy Pattern)
+
+```java
+public interface SimulationMode {
+  void update();        // compute or integrate data
+  void display(PApplet app);  // draw to the screen or off-screen buffer
+}
+```
+
+FieldLineMode
+update(): Start rays around each charge, steps along the field vector until max loops or near another charge.
+display(): Draws line segments and arrowheads to show direction.
+
+FieldVectorMode
+update(): Samples the net force on a uniform grid via CommonMath.netForceAtPoint().
+display(): Renders scaled arrows at each sample point.
+
+EquipotentialMode
+update(): Steps orthogonally to the field vector (rotate 90°) to trace constant-voltage lines.
+display(): Renders smooth equipotential contours.
+
+VoltageGradientMode
+update(): Computes voltage at each cell center (CommonMath.voltageAtPoint()), writes to an off-screen PGraphics.
+display(): Blits the heatmap buffer to the canvas.
+
+TestChargeMode
+update(): Moves test charges with Euler integration using netForceAtPoint().
+display(): Draws animated test charges to reveal streamlines.
 
 ## Prerequisites
 
