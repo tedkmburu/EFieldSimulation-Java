@@ -6,10 +6,10 @@ import processing.core.PVector;
 public class FieldVector {
     private PVector position;
     private PVector forceVector;
-    private float forceMag;
-    private float scale;
+    private Float forceMag;
+    private Float scale;
     private PVector end;
-    private int color;
+    private Integer color;
 
     public FieldVector(PVector position, PVector forceVector) {
         this.position = position.copy();

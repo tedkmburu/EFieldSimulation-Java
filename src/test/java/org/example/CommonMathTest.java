@@ -19,7 +19,7 @@ public class CommonMathTest {
 //     r = 100
 //     forceMag = K * q / r^2 = 8990000 * 5 / (100*100) ≈ 4495
 //     Expect vector ≈ (-4495, 0).
-        PointCharge charge = new PointCharge(new PVector(200, 200), 5);
+        PointCharge charge = new PointCharge(new PVector(200, 200), 5F);
         ArrayList<PointCharge> charges = new ArrayList<>();
         charges.add(charge);
 
@@ -39,7 +39,7 @@ public class CommonMathTest {
     @Test
     public void testMouseIsInsideCharge() {
         // A point 10px away from a charge at (200,200) should lie within its radius (20px)
-        PointCharge charge = new PointCharge(new PVector(200, 200), 5);
+        PointCharge charge = new PointCharge(new PVector(200, 200), 5F);
         PVector inside = new PVector(210, 200);
         assertTrue(CommonMath.mouseIsInsideCharge(inside, charge),
                 "Point should be inside the charge's radius.");
@@ -48,7 +48,7 @@ public class CommonMathTest {
     @Test
     public void testVoltageCalculation() {
         // For same single charge, V = K * q / r = 8990000 * 5 / 100 ≈ 449500
-        PointCharge charge = new PointCharge(new PVector(200, 200), 5);
+        PointCharge charge = new PointCharge(new PVector(200, 200), 5F);
         ArrayList<PointCharge> charges = new ArrayList<>();
         charges.add(charge);
 

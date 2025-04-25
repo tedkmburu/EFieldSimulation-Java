@@ -31,7 +31,10 @@ public class Main extends PApplet {
         controlPanel.setSimulation(simulation);
         controlPanel.addListener(simulation);
 
+        // create the dipole
         PresetConfigurator.setDipoleConfiguration(simulation);
+        // now deselect both charges
+        simulation.resetChargeStates();
     }
 
     public void controlEvent(ControlEvent e) {

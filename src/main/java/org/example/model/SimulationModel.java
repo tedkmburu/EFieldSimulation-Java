@@ -34,7 +34,7 @@ public class SimulationModel implements ControlPanelListener {
     public ControlPanel controlPanel;
 
     private PVector mousePosition;
-    public boolean voltageDirty = true;
+    public Boolean voltageDirty = true;
 
     public SimulationModel(PApplet parent, ControlPanel controlPanel, FieldElementFactory fieldElementFactory, ChargeFactory chargeFactory) {
         this.parent = parent;
@@ -121,19 +121,19 @@ public class SimulationModel implements ControlPanelListener {
     }
 
     public void displayGrid(PApplet app) {
-        Integer GRID_SIZE = ConfigManager.getInstance().getGridSize();
+        Float GRID_SIZE = ConfigManager.getInstance().getGridSize();
         if (controlPanel.showGridMode()) {
             app.pushMatrix();
             app.stroke(255, 255, 255, 50);
             app.strokeWeight(1);
-            for (int x = 0; x < (app.displayWidth / GRID_SIZE); x++) {
-                Integer xPos = x * GRID_SIZE;
+            for (Integer x = 0; x < (app.displayWidth / GRID_SIZE); x++) {
+                Float xPos = x * GRID_SIZE;
                 Integer y1 = 0;
                 Integer y2 = app.height;
                 app.line(xPos, y1, xPos, y2);
             }
-            for (int y = 0; y < (app.displayHeight / GRID_SIZE); y++) {
-                Integer yPos = y * GRID_SIZE;
+            for (Integer y = 0; y < (app.displayHeight / GRID_SIZE); y++) {
+                Float yPos = y * GRID_SIZE;
                 Integer x1 = 0;
                 Integer x2 = app.width;
                 app.line(x1, yPos, x2, yPos);
@@ -188,7 +188,7 @@ public class SimulationModel implements ControlPanelListener {
         }
 
         // Update leftPoint by iterating 100 times.
-        for (int i = 0; i < 100; i++) {
+        for (Integer i = 0; i < 100; i++) {
             PVector forceVector = netForceAtPoint(leftPoint, pointCharges);
             forceVector.rotate((float)Math.PI / 2);
             forceVector.setMag(ConfigManager.getInstance().getEquiLinesAccuracy());
@@ -197,7 +197,7 @@ public class SimulationModel implements ControlPanelListener {
         leftPoints.add(leftPoint.copy());
 
         // Update rightPoint similarly.
-        for (int i = 0; i < 100; i++) {
+        for (Integer i = 0; i < 100; i++) {
             PVector forceVector = netForceAtPoint(rightPoint, pointCharges);
             forceVector.mult(-1);
             forceVector.rotate((float)Math.PI / 2);
@@ -226,7 +226,7 @@ public class SimulationModel implements ControlPanelListener {
                 rightPoints.add(leftPoints.get(leftPoints.size() - 1).copy());
             }
             // Create and store two equipotential lines.
-            float voltage = voltageAtPoint(leftPoints.get(0), pointCharges);
+            Float voltage = voltageAtPoint(leftPoints.get(0), pointCharges);
             EquiLine leftEquiLine = fieldElementFactory.createEquiLine(parent, leftPoints, voltage);
             EquiLine rightEquiLine = fieldElementFactory.createEquiLine(parent, rightPoints, voltage);
             equiLines.add(leftEquiLine);
@@ -239,12 +239,12 @@ public class SimulationModel implements ControlPanelListener {
         // Clear any existing field vectors.
         fieldVectors.clear();
         // Loop through a grid over the canvas (use parent.height and parent.width)
-        for (int y = 0; y < parent.height; y += ConfigManager.getInstance().getGridSize()) {
-            for (int x = 0; x < parent.width; x += ConfigManager.getInstance().getGridSize()) {
+        for (Float y = 0.0f; y < parent.height; y += ConfigManager.getInstance().getGridSize()) {
+            for (Float x = 0.0f; x < parent.width; x += ConfigManager.getInstance().getGridSize()) {
                 PVector arrowLocation = new PVector(x, y);
 
                 // Check if no charge is near this grid point.
-                boolean noChargesNearby = true;
+                Boolean noChargesNearby = true;
                 for (Charge charge : pointCharges) {
                     if (PVector.dist(arrowLocation, charge.getPosition()) < ConfigManager.getInstance().getChargeDiameter()) {
                         noChargesNearby = false;
@@ -266,7 +266,6 @@ public class SimulationModel implements ControlPanelListener {
 
     // Draws an unsaved arrow for the field vector at the mouse position.
     public void showForceVectorsOnMouse() {
-//        PVector mousePos = new PVector(parent.mouseX, parent.mouseY);
         PVector force = netForceAtPoint(mousePosition, pointCharges);
         force.div(ConfigManager.getInstance().getFieldVectorScale());
 
@@ -292,11 +291,11 @@ public class SimulationModel implements ControlPanelListener {
         for (PointCharge charge : pointCharges) {
             if (charge.getCharge() > 0)
             {
-                float radius = ConfigManager.getInstance().getChargeRadius();
-                int times = (int)Math.abs(charge.getCharge() * ConfigManager.getInstance().getFieldLinesPerCoulomb());
+                Float radius = ConfigManager.getInstance().getChargeRadius();
+                Integer times = (int)Math.abs(charge.getCharge() * ConfigManager.getInstance().getFieldLinesPerCoulomb());
                 PVector origin = charge.getPosition().copy();
                 PVector point = new PVector(radius, 0);
-                for (int a = 0; a < times; a++) {
+                for (Integer a = 0; a < times; a++) {
                     PVector startingPoint = PVector.add(origin, point);
 
                     FieldLine line = new FieldLineBuilder(parent, startingPoint, pointCharges).build();
@@ -374,7 +373,7 @@ public class SimulationModel implements ControlPanelListener {
     }
 
     @Override
-    public void onFieldLinesToggled(boolean on) {
+    public void onFieldLinesToggled(Boolean on) {
         if (on) {
             createFieldLines();
         } else {
@@ -383,7 +382,7 @@ public class SimulationModel implements ControlPanelListener {
     }
 
     @Override
-    public void onFieldVectorsToggled(boolean on) {
+    public void onFieldVectorsToggled(Boolean on) {
         if (on) {
             // regenerate field vectors immediately
             createFieldVectors();
@@ -394,7 +393,7 @@ public class SimulationModel implements ControlPanelListener {
     }
 
     @Override
-    public void onEquipotentialToggled(boolean on) {
+    public void onEquipotentialToggled(Boolean on) {
         if (!on) {
             // clear any existing equipotential lines
             equiLines.clear();
@@ -402,23 +401,23 @@ public class SimulationModel implements ControlPanelListener {
     }
 
     @Override
-    public void onVoltageToggled(boolean on){
+    public void onVoltageToggled(Boolean on){
         // mark voltage map dirty so it’ll be recomputed/displayed on next draw
         voltageDirty = true;
     }
 
     @Override
-    public void onGridToggled(boolean on) {
+    public void onGridToggled(Boolean on) {
         // no immediate action needed—displayGrid() reads the ControlPanel flag
     }
 
     @Override
-    public void onSnapToGridToggled(boolean on) {
+    public void onSnapToGridToggled(Boolean on) {
         // no action here—InputHandler will pick up the snap setting
     }
 
     @Override
-    public void onTestChargeModeToggled(boolean on) {
+    public void onTestChargeModeToggled(Boolean on) {
         if (!on) {
             // exiting test-charge mode, clear any stray test charges
             clearTestCharges();

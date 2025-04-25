@@ -15,9 +15,8 @@ public class TestCharge extends Charge {
 
     private PVector velocity;
     private PVector acceleration;
-    private float radius;
-    private float diameter;
-    private int displayColor; // Processing color
+    private Float radius;
+    private Integer diameter;
 
     private static final Style POS_TC = StyleFactory.getStyle(ConfigManager.getInstance().getPositiveChargeColor(), 0, 1f, true);
     private static final Style NEG_TC = StyleFactory.getStyle(ConfigManager.getInstance().getNegativeChargeColor(), 0, 1f, true);

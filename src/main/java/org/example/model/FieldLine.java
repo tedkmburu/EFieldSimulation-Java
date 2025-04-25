@@ -13,9 +13,9 @@ public class FieldLine {
     private ArrayList<FieldLineArrow> fieldLineArrows;
     private PVector startingPoint;
 
-    private final int maxLoops;
-    private final float stepSize;
-    private final int arrowInterval;
+    private final Integer maxLoops;
+    private final Float stepSize;
+    private final Integer arrowInterval;
 
     public FieldLine(PApplet app, PVector startingPoint, ArrayList<PointCharge> pointCharges, FieldLineConfig config) {
         this.app = app;
@@ -32,7 +32,7 @@ public class FieldLine {
         placeArrows(pointCharges);
     }
 
-    private void generateFieldLineRecursive(ArrayList<PointCharge> pointCharges, int loopCount) {
+    private void generateFieldLineRecursive(ArrayList<PointCharge> pointCharges, Integer loopCount) {
         // 1) stop if we’ve done enough loops
         if (loopCount >= maxLoops) return;
 
@@ -56,9 +56,9 @@ public class FieldLine {
     }
 
     private void placeArrows(ArrayList<PointCharge> pointCharges) {
-        for (int i = arrowInterval; i < points.size(); i += arrowInterval) {
+        for (Integer i = arrowInterval; i < points.size(); i += arrowInterval) {
             PVector pos = points.get(i);
-            float dir   = computeDirectionAt(pos, pointCharges);
+            Float dir   = computeDirectionAt(pos, pointCharges);
             FieldLineArrow arrow = new FieldLineArrow(pos, dir);
             fieldLineArrows.add(arrow);
         }
@@ -107,9 +107,5 @@ public class FieldLine {
         for (FieldLineArrow fieldLineArrow : fieldLineArrows) {
             fieldLineArrow.display(app);
         }
-    }
-
-    public ArrayList<PVector> getPoints() {
-        return points;
     }
 }

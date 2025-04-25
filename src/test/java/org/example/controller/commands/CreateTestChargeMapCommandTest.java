@@ -44,16 +44,16 @@ public class CreateTestChargeMapCommandTest {
         cmd.execute();
         List<?> tcs = sim.getTestCharges();
 
-        int grid = cm.getGridSize();
-        int cols = (pap.width - grid) / grid;
-        int rows = pap.height / grid;
-        int step = PresetConfigurator.TEST_CHARGE_MAP_STEP;
+        Float grid = cm.getGridSize();
+        Integer cols = (int) ((pap.width - grid) / grid);
+        Integer rows = (int) (pap.height / grid);
+        Integer step = PresetConfigurator.TEST_CHARGE_MAP_STEP;
 
-        int countX = 0;
-        for (int x = 0; x < cols; x += step) countX++;
-        int countY = 0;
-        for (int y = 0; y < rows; y += step) countY++;
-        int expectedTotal = countX * countY;
+        Integer countX = 0;
+        for (Integer x = 0; x < cols; x += step) countX++;
+        Integer countY = 0;
+        for (Integer y = 0; y < rows; y += step) countY++;
+        Integer expectedTotal = countX * countY;
 
         assertEquals(expectedTotal, tcs.size(),
                 "execute() should generate the expected number of test charges");
@@ -73,7 +73,7 @@ public class CreateTestChargeMapCommandTest {
     @Test
     void testPrevModeDoesNotAlterControlPanelFlag() {
         // initial flag
-        boolean initial = controlPanel.testChargeMode();
+        Boolean initial = controlPanel.testChargeMode();
         cmd.execute();
         assertEquals(initial, controlPanel.testChargeMode(),
                 "execute() should not change controlPanel.testChargeMode flag");

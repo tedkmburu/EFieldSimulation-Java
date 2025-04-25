@@ -33,13 +33,10 @@ public class ControlPanel {
     public void addListener(ControlPanelListener l) {
         listeners.add(l);
     }
-    public void removeListener(ControlPanelListener l) {
-        listeners.remove(l);
-    }
 
     public void controlEvent(ControlEvent e) {
         String name = e.getController().getName();
-        boolean value = e.getController().getValue() == 1.0;
+        Boolean value = e.getController().getValue() == 1.0;
         switch (name) {
             case "fieldLinesToggle":
                 invoker.execute(new ToggleFieldLinesCommand(simulation, this));
@@ -122,14 +119,14 @@ public class ControlPanel {
     }
 
     private void createGUI() {
-        int panelX = parent.width - ConfigManager.getInstance().getSidePanelWidth(); // near the right edge
-        int startY = 30;
-        int spacing = 40;
-        int ToggleSize = 20;
-        int buttonWidth = 150;
-        int buttonHeight = 25;
+        Integer panelX = parent.width - ConfigManager.getInstance().getSidePanelWidth(); // near the right edge
+        Integer startY = 30;
+        Integer spacing = 40;
+        Integer ToggleSize = 20;
+        Integer buttonWidth = 150;
+        Integer buttonHeight = 25;
 
-        int textColor = parent.color(0);
+        Integer textColor = parent.color(0);
 
         // --------------------------------------------------------
         // 1) Togglees for various features
@@ -282,15 +279,13 @@ public class ControlPanel {
     }
 
     // Getters for Simulation code to see which flags are on/off
-    public boolean showFieldLinesMode() { return showFieldLines; }
-    public boolean showFieldVectorsMode() { return showFieldVectors; }
-    public boolean showEquipotentialLinesMode() { return showEquipotentialLines; }
-    public boolean showVoltageMode() { return showVoltage; }
-    public boolean numericalValueMode() { return numericalValue; }
-    public boolean showGridMode() { return showGrid; }
-    public boolean snapToGridMode() { return snapToGrid; }
-    public boolean testChargeMode() { return testChargeMode; }
+    public Boolean showFieldLinesMode() { return showFieldLines; }
+    public Boolean showFieldVectorsMode() { return showFieldVectors; }
+    public Boolean showEquipotentialLinesMode() { return showEquipotentialLines; }
+    public Boolean showVoltageMode() { return showVoltage; }
+    public Boolean numericalValueMode() { return numericalValue; }
+    public Boolean showGridMode() { return showGrid; }
+    public Boolean snapToGridMode() { return snapToGrid; }
+    public Boolean testChargeMode() { return testChargeMode; }
 
-    public void toggleTestChargeMode(boolean b) {
-    }
 }

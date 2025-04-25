@@ -5,9 +5,9 @@ import processing.core.PVector;
 
 public class FieldLineArrow {
     private PVector position;
-    private float direction; // in radians
+    private Float direction; // in radians
 
-    public FieldLineArrow(PVector position, float direction) {
+    public FieldLineArrow(PVector position, Float direction) {
         this.position = position;
         this.direction = direction;
     }

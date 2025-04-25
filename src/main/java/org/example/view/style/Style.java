@@ -3,12 +3,12 @@ package org.example.view.style;
 import processing.core.PApplet;
 
 public class Style {
-    private final int fillColor;
-    private final int strokeColor;
-    private final float strokeWeight;
-    private final boolean useFill; // true ⇒ fill, false ⇒ noFill
+    private final Integer fillColor;
+    private final Integer strokeColor;
+    private final Float strokeWeight;
+    private final Boolean useFill; // true ⇒ fill, false ⇒ noFill
 
-    Style(int fillColor, int strokeColor, float strokeWeight, boolean useFill) {
+    Style(Integer fillColor, Integer strokeColor, Float strokeWeight, Boolean useFill) {
         this.fillColor    = fillColor;
         this.strokeColor  = strokeColor;
         this.strokeWeight = strokeWeight;
@@ -22,6 +22,4 @@ public class Style {
         app.stroke(strokeColor);
         app.strokeWeight(strokeWeight);
     }
-
-    // equals/hashCode based on all fields…
 }

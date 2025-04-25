@@ -30,7 +30,6 @@ public class InputController {
             mousePos.x = simulation.getWidth() - SIDE_PANEL_WIDTH - SIDE_PANEL_PADDING - CHARGE_RADIUS;
         }
         ArrayList<PointCharge> pointCharges = simulation.getPointCharges();
-        ArrayList<TestCharge> testCharges = simulation.getTestCharges();
 
         // Determine if no charge is currently being dragged.
         boolean noChargeIsBeingDragged = true;
@@ -64,9 +63,9 @@ public class InputController {
         // If a charge is being dragged, update its position.
         if (chargeToMove != null) {
             if (controlPanel.snapToGridMode()) {
-                float g = ConfigManager.getInstance().getGridSize();
-                float snappedX = Math.round(mousePos.x / g) * g;
-                float snappedY = Math.round(mousePos.y / g) * g;
+                Float g = ConfigManager.getInstance().getGridSize();
+                Float snappedX = Math.round(mousePos.x / g) * g;
+                Float snappedY = Math.round(mousePos.y / g) * g;
                 chargeToMove.setPosition(new PVector(snappedX, snappedY));
 
             }
@@ -87,9 +86,8 @@ public class InputController {
 
     public void handleKeyPressed() {
         ArrayList<PointCharge> pointCharges = simulation.getPointCharges();
-        ArrayList<TestCharge> testCharges = simulation.getTestCharges();
 
-        int kc = parent.keyCode;  // Get the key code from the parent PApplet
+        Integer kc = parent.keyCode;  // Get the key code from the parent PApplet
         // Loop over charges and check for a selected one.
         for (int i = 0; i < pointCharges.size(); i++) {
             PointCharge pointCharge = pointCharges.get(i);

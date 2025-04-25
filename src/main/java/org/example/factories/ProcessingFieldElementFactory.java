@@ -13,7 +13,7 @@ public class ProcessingFieldElementFactory implements FieldElementFactory {
     }
 
     @Override
-    public EquiLine createEquiLine(PApplet app, ArrayList<PVector> points, float voltage) {
+    public EquiLine createEquiLine(PApplet app, ArrayList<PVector> points, Float voltage) {
         return new EquiLine(app, points, voltage);
     }
 }

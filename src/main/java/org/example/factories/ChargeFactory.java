@@ -5,6 +5,6 @@ import org.example.model.TestCharge;
 import processing.core.PVector;
 
 public interface ChargeFactory {
-    PointCharge createPointCharge(PVector position, float charge);
-    TestCharge  createTestCharge(PVector position, float charge);
+    PointCharge createPointCharge(PVector position, Float charge);
+    TestCharge  createTestCharge(PVector position, Float charge);
 }
