@@ -3,9 +3,6 @@ package org.example.controller.commands;
 import org.example.model.SimulationModel;
 import org.example.view.ui.ControlPanel;
 
-/**
- * Toggles the field-lines display on/off.
- */
 public class ToggleFieldLinesCommand implements Command {
     private final ControlPanel panel;
     private final SimulationModel simulation;

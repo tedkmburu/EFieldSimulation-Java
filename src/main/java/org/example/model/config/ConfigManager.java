@@ -28,7 +28,6 @@ public final class ConfigManager {
         props.setProperty("field.vector.scale",       "500");
     }
 
-    /** Double-checked locking getter */
     public static ConfigManager getInstance() {
         if (instance == null) {
             synchronized (ConfigManager.class) {
