@@ -62,7 +62,7 @@ public class EquipotentialModeTest {
         List<?> before = (List<?>) equiLinesField.get(sim);
         assertTrue(before.isEmpty(), "Should start with no equipotential lines");
 
-        // Call update (which is a no-op) :contentReference[oaicite:4]{index=4}&#8203;:contentReference[oaicite:5]{index=5}
+        // Call update (which is a no-op)
         mode.update();
 
         @SuppressWarnings("unchecked")
