@@ -3,8 +3,6 @@ package org.example.model;
 import processing.core.PApplet;
 import processing.core.PVector;
 
-import static org.example.Constants.*;
-
 public class FieldVector {
     private PVector position;
     private PVector forceVector;
@@ -15,7 +13,6 @@ public class FieldVector {
 
     public FieldVector(PVector position, PVector forceVector) {
         this.position = position.copy();
-//        forceVector.div(Constants.FIELD_VECTOR_SCALE);
         this.forceVector = forceVector.copy().copy();
         this.forceMag = this.forceVector.mag();
         this.scale = this.forceMag / 10.0F;

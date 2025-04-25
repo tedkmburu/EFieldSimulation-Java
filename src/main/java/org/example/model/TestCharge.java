@@ -30,25 +30,10 @@ public class TestCharge extends Charge {
         this.radius = ConfigManager.getInstance().getTestChargeRadius();
         this.diameter = ConfigManager.getInstance().getTestChargeDiameter();
 
-        // Determine color based on charge polarity (using colors defined in Constants)
-//        if (charge > 0) {
-//            this.displayColor = ConfigManager.getInstance().getPositiveChargeColor();
-//        } else if (charge < 0) {
-//            this.displayColor = ConfigManager.getInstance().getNegativeChargeColor();
-//        } else {
-//            this.displayColor = ConfigManager.getInstance().getNeutralChargeColor();
-//        }
-
     }
 
     // Display the test charge as an ellipse
     public void display(PApplet app) {
-//        app.pushMatrix();
-//        app.stroke(0);
-//        app.strokeWeight(1);
-//        app.fill(displayColor);
-//        app.ellipse(position.x, position.y, ConfigManager.getInstance().getTestChargeDiameter(), ConfigManager.getInstance().getTestChargeDiameter());
-//        app.popMatrix();
             app.pushMatrix();
             Style sty = charge>0 ? POS_TC : charge<0 ? NEG_TC : NEU_TC;
             sty.apply(app);
@@ -58,7 +43,7 @@ public class TestCharge extends Charge {
 
     // Update the position based on a given force vector.
     public void move(ArrayList<PointCharge> pointCharges) {
-        PVector force = netForceAtPoint(position, pointCharges).mult(-1); //new PVector(position.x, position.y);
+        PVector force = netForceAtPoint(position, pointCharges).mult(-1);
         if (!Float.isInfinite(force.mag())) {
             // a = (qE) and assume mass = 1 for simplicity
             acceleration = force.copy().mult(charge);

@@ -22,16 +22,6 @@ public class FieldLineBuilder {
         this.pointCharges = pointCharges;
     }
 
-    public FieldLineBuilder withMaxLoops(int maxLoops) {
-        this.maxLoops = maxLoops; return this;
-    }
-    public FieldLineBuilder withStepSize(float stepSize) {
-        this.stepSize = stepSize; return this;
-    }
-    public FieldLineBuilder withArrowInterval(int interval) {
-        this.arrowInterval = interval; return this;
-    }
-
     public FieldLine build() {
         FieldLineConfig config =
                 new FieldLineConfig(maxLoops, stepSize, arrowInterval);

@@ -1,183 +1,179 @@
 package org.example;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import org.example.model.config.ConfigManager;
 import org.example.model.PresetConfigurator;
 import org.example.model.SimulationModel;
 import org.example.model.PointCharge;
-import org.example.view.ui.ControlPanel;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.example.model.TestCharge;
+import org.example.model.config.ConfigManager;
 import processing.core.PApplet;
 import processing.core.PVector;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PresetConfiguratorTest {
 
-    private PApplet app;
-    private SimulationModel simulation;
-    private ControlPanel controlPanel;
+    private ConfigManager cm;
+    private SimulationModel sim;
+    private PApplet pap;
 
     @BeforeEach
-    public void setup() {
-        // Create a minimal PApplet with necessary dimensions.
-        app = new PApplet();
-        app.width = 800;
-        app.height = 600;
-        app.displayWidth = 800;
-        app.displayHeight = 600;
-        // Create a ControlPanel in no-UI mode.
-        controlPanel = new ControlPanel(app, null, true) {
-            // For these tests, mode getters are not needed.
-        };
-        simulation = new SimulationModel(app, controlPanel);
+    void setUp() {
+        cm = ConfigManager.getInstance();
+
+        // Initialize a headless Processing sketch so pap.g is non-null
+        pap = new PApplet();
+        PApplet.runSketch(new String[]{"PresetConfiguratorTest"}, pap);
+        pap.noLoop();
+
+        // Force a predictable canvas size
+        pap.width = 800;
+        pap.height = 600;
+
+        // Now it's safe to construct the SimulationModel
+        sim = new SimulationModel(pap, null);
     }
 
-    // Single Configuration:
-    // After calling setSingleConfiguration(simulation), assert that simulation’s point charge list
-    // has exactly one charge positioned at the center.
     @Test
-    public void testSingleConfiguration() {
-        PresetConfigurator.setSingleConfiguration(simulation);
-        assertEquals(1, simulation.getPointCharges().size(), "There should be exactly one point charge");
+    void testSetSingleConfiguration() {
+        PresetConfigurator.setSingleConfiguration(sim);
+        List<PointCharge> charges = sim.getPointCharges();
+        assertEquals(1, charges.size(), "Should have exactly one point charge");
 
-        PointCharge charge = simulation.getPointCharges().get(0);
-        float expectedX = app.width / 2f;
-        float expectedY = app.height / 2f;
-        // Use a small tolerance for floating point comparison.
-        assertTrue(Math.abs(charge.getPosition().x - expectedX) < 0.001,
-                "Charge x position should be at the center (" + expectedX + ")");
-        assertTrue(Math.abs(charge.getPosition().y - expectedY) < 0.001,
-                "Charge y position should be at the center (" + expectedY + ")");
+        PointCharge pc = charges.get(0);
+
+        float midX = (pap.width - (cm.getSidePanelWidth() + cm.getSidePanelPadding())) / 2f;
+        float midY = pap.height / 2f;
+        float expectedX = Math.round(midX / cm.getGridSize()) * cm.getGridSize();
+        float expectedY = Math.round(midY / cm.getGridSize()) * cm.getGridSize();
+
+        assertEquals(expectedX, pc.getPosition().x, 1e-3f, "Single charge x-position");
+        assertEquals(expectedY, pc.getPosition().y, 1e-3f, "Single charge y-position");
+        assertEquals(PresetConfigurator.SINGLE_CHARGE_VALUE, pc.getCharge(), 1e-6f, "Single charge value");
     }
 
-    // Dipole Configuration:
-    // Verify that setDipoleConfiguration(simulation) clears existing charges and adds exactly two
-    // charges with the correct polarity (+5 and -5).
     @Test
-    public void testDipoleConfiguration() {
-        // First, add a dummy charge to verify removal.
-        simulation.addPointCharge(new PVector(0, 0), 0f);
-        PresetConfigurator.setDipoleConfiguration(simulation);
-        assertEquals(2, simulation.getPointCharges().size(), "Dipole configuration should result in exactly 2 point charges");
+    void testSetDipoleConfiguration() {
+        PresetConfigurator.setDipoleConfiguration(sim);
+        List<PointCharge> charges = sim.getPointCharges();
+        assertEquals(2, charges.size(), "Should have exactly two point charges");
 
-        PointCharge charge1 = simulation.getPointCharges().get(0);
-        PointCharge charge2 = simulation.getPointCharges().get(1);
+        float midX = (pap.width - (cm.getSidePanelWidth() + cm.getSidePanelPadding())) / 2f;
+        float midY = pap.height / 2f;
+        float spacing = PresetConfigurator.DIPOLE_SPACING_MULTIPLIER * cm.getGridSize();
+        float leftX = Math.round((midX - spacing / 2f) / cm.getGridSize()) * cm.getGridSize();
+        float rightX = Math.round((midX + spacing / 2f) / cm.getGridSize()) * cm.getGridSize();
+        float expectedY = Math.round(midY / cm.getGridSize()) * cm.getGridSize();
 
-        // Expected positions: (300, height/2) with +5, and (500, height/2) with -5.
-        float centerY = app.height / 2f;
-        assertTrue(Math.abs(charge1.getPosition().x - 300) < 0.001 &&
-                Math.abs(charge1.getPosition().y - centerY) < 0.001 &&
-                charge1.getCharge() > 0, "First dipole charge should be at (300, height/2) with positive polarity");
+        PointCharge left = charges.get(0);
+        assertEquals(leftX, left.getPosition().x, 1e-3f, "Dipole left x-position");
+        assertEquals(expectedY, left.getPosition().y, 1e-3f, "Dipole left y-position");
+        assertEquals(PresetConfigurator.DIPOLE_CHARGE_MAGNITUDE, left.getCharge(), 1e-6f, "Left charge value");
 
-        assertTrue(Math.abs(charge2.getPosition().x - 500) < 0.001 &&
-                Math.abs(charge2.getPosition().y - centerY) < 0.001 &&
-                charge2.getCharge() < 0, "Second dipole charge should be at (500, height/2) with negative polarity");
+        PointCharge right = charges.get(1);
+        assertEquals(rightX, right.getPosition().x, 1e-3f, "Dipole right x-position");
+        assertEquals(expectedY, right.getPosition().y, 1e-3f, "Dipole right y-position");
+        assertEquals(-PresetConfigurator.DIPOLE_CHARGE_MAGNITUDE, right.getCharge(), 1e-6f, "Right charge value");
     }
 
-    // Row Configuration:
-    // Check that setRowConfiguration(simulation) results in exactly four charges arranged with correct spacing.
     @Test
-    public void testRowConfiguration() {
-        PresetConfigurator.setRowConfiguration(simulation);
-        assertEquals(4, simulation.getPointCharges().size(), "Row configuration should create 4 point charges");
+    void testSetRowConfiguration() {
+        PresetConfigurator.setRowConfiguration(sim);
+        List<PointCharge> charges = sim.getPointCharges();
+        assertEquals(PresetConfigurator.ROW_COUNT, charges.size(), "Should have ROW_COUNT point charges");
 
-        float spacing = 75f;
-        float baseX = app.width / 2f;
-        float expectedY = app.height / 2f;
+        float midX = (pap.width - (cm.getSidePanelWidth() + cm.getSidePanelPadding())) / 2f;
+        float midY = pap.height / 2f;
+        float spacing = cm.getGridSize() * PresetConfigurator.ROW_SPACING_MULTIPLIER;
+        float totalWidth = spacing * (PresetConfigurator.ROW_COUNT - 1);
+        float startX = midX - totalWidth / 2f;
+        float expectedY = Math.round(midY / cm.getGridSize()) * cm.getGridSize();
 
-        for (int i = 0; i < 4; i++) {
-            PointCharge charge = simulation.getPointCharges().get(i);
-            float expectedX = (i + 1) * spacing + baseX;
-            assertTrue(Math.abs(charge.getPosition().x - expectedX) < 0.001,
-                    "Charge " + (i + 1) + " x position should be " + expectedX);
-            assertTrue(Math.abs(charge.getPosition().y - expectedY) < 0.001,
-                    "Charge " + (i + 1) + " y position should be " + expectedY);
+        for (int i = 0; i < PresetConfigurator.ROW_COUNT; i++) {
+            PointCharge pc = charges.get(i);
+            float rawX = startX + i * spacing;
+            float expectedX = Math.round(rawX / cm.getGridSize()) * cm.getGridSize();
+
+            assertEquals(expectedX, pc.getPosition().x, 1e-3f, "Row charge " + i + " x-position");
+            assertEquals(expectedY, pc.getPosition().y, 1e-3f, "Row charge " + i + " y-position");
+            assertEquals(PresetConfigurator.SINGLE_CHARGE_VALUE, pc.getCharge(), 1e-6f, "Row charge " + i + " value");
         }
     }
 
-    // Dipole Row Configuration:
-    // Ensure that setDipoleRowConfiguration(simulation) produces the expected number of charges (8 total)
-    // with each dipole arranged as expected.
     @Test
-    public void testDipoleRowConfiguration() {
-        PresetConfigurator.setDipoleRowConfiguration(simulation);
-        assertEquals(8, simulation.getPointCharges().size(), "Dipole row configuration should produce 8 charges (4 dipoles)");
+    void testSetDipoleRowConfiguration() {
+        PresetConfigurator.setDipoleRowConfiguration(sim);
+        List<PointCharge> charges = sim.getPointCharges();
+        int expectedCount = 2 * PresetConfigurator.DIPOLE_ROW_COUNT;
+        assertEquals(expectedCount, charges.size(), "Should have 2×DIPOLE_ROW_COUNT point charges");
 
-        float spacing = 75f;
-        float baseX = app.width / 2f;
-        float y = app.height / 2f;
-        // Loop through each dipole.
-        for (int i = 0; i < 4; i++) {
-            // Each dipole: first charge at ( (i+1)*spacing + baseX, y ) with +5;
-            // second charge at ( (i+1)*spacing + baseX, y + 100 ) with -5.
-            int idx = i * 2;
-            PointCharge positiveCharge = simulation.getPointCharges().get(idx);
-            PointCharge negativeCharge = simulation.getPointCharges().get(idx + 1);
-            float expectedX = (i + 1) * spacing + baseX;
+        float midX = (pap.width - (cm.getSidePanelWidth() + cm.getSidePanelPadding())) / 2f;
+        float midY = pap.height / 2f;
+        float spacing = cm.getGridSize() * PresetConfigurator.DIPOLE_ROW_SPACING_MULTIPLIER;
+        float totalWidth = spacing * (PresetConfigurator.DIPOLE_ROW_COUNT - 1);
+        float startX = midX - totalWidth / 2f;
+        float verticalHalf = spacing * PresetConfigurator.DIPOLE_ROW_VERTICAL_FACTOR / 2f;
+        float expectedPosY = Math.round((midY - verticalHalf) / cm.getGridSize()) * cm.getGridSize();
+        float expectedNegY = Math.round((midY + verticalHalf) / cm.getGridSize()) * cm.getGridSize();
 
-            assertTrue(Math.abs(positiveCharge.getPosition().x - expectedX) < 0.001 &&
-                            Math.abs(positiveCharge.getPosition().y - y) < 0.001 &&
-                            positiveCharge.getCharge() > 0,
-                    "Dipole " + (i + 1) + " positive charge is not positioned correctly.");
+        for (int i = 0; i < PresetConfigurator.DIPOLE_ROW_COUNT; i++) {
+            int base = 2 * i;
+            PointCharge pos = charges.get(base);
+            PointCharge neg = charges.get(base + 1);
 
-            assertTrue(Math.abs(negativeCharge.getPosition().x - expectedX) < 0.001 &&
-                            Math.abs(negativeCharge.getPosition().y - (y + 100)) < 0.001 &&
-                            negativeCharge.getCharge() < 0,
-                    "Dipole " + (i + 1) + " negative charge is not positioned correctly.");
+            float rawX = startX + i * spacing;
+            float expectedX = Math.round(rawX / cm.getGridSize()) * cm.getGridSize();
+
+            // Positive pole
+            assertEquals(expectedX, pos.getPosition().x, 1e-3f, "Dipole-row pos " + i + " x");
+            assertEquals(expectedPosY, pos.getPosition().y, 1e-3f, "Dipole-row pos " + i + " y");
+            assertEquals(PresetConfigurator.DIPOLE_CHARGE_MAGNITUDE, pos.getCharge(), 1e-6f, "Dipole-row pos " + i + " charge");
+
+            // Negative pole
+            assertEquals(expectedX, neg.getPosition().x, 1e-3f, "Dipole-row neg " + i + " x");
+            assertEquals(expectedNegY, neg.getPosition().y, 1e-3f, "Dipole-row neg " + i + " y");
+            assertEquals(-PresetConfigurator.DIPOLE_CHARGE_MAGNITUDE, neg.getCharge(), 1e-6f, "Dipole-row neg " + i + " charge");
         }
     }
 
-    // Random Configuration:
-    // After setRandomConfiguration(simulation), assert that there are 10 charges and that their positions
-    // fall within the simulation’s width (minus side panel) and height.
     @Test
-    public void testRandomConfiguration() {
-        PresetConfigurator.setRandomConfiguration(simulation);
-        assertEquals(10, simulation.getPointCharges().size(), "Random configuration should create 10 point charges");
+    void testRandomConfiguration() {
+        PresetConfigurator.setRandomConfiguration(sim);
+        List<PointCharge> charges = sim.getPointCharges();
+        assertEquals(PresetConfigurator.RANDOM_CHARGE_COUNT, charges.size(), "Should have RANDOM_CHARGE_COUNT point charges");
 
-        for (PointCharge charge : simulation.getPointCharges()) {
-            float x = charge.getPosition().x;
-            float y = charge.getPosition().y;
-            // x should be between 0 and (width - SIDE_PANEL_WIDTH) and y between 0 and height.
-            assertTrue(x >= 0 && x <= app.width - ConfigManager.getInstance().getSidePanelWidth(),
-                    "Charge x position should be within the valid range");
-            assertTrue(y >= 0 && y <= app.height,
-                    "Charge y position should be within the valid range");
-            // Charge value should be either 5 or -5.
-            assertTrue(charge.getCharge() == 5f || charge.getCharge() == -5f,
-                    "Charge value should be either +5 or -5");
+        for (PointCharge pc : charges) {
+            float c = pc.getCharge();
+            boolean isMax = c == cm.getPointChargeMaxValue();
+            boolean isMin = c == cm.getPointChargeMinValue();
+            assertTrue(isMax || isMin, "Each random charge must be either max or min");
         }
     }
 
-    // Test Charge Map:
-    // Call createTestChargeMap(simulation) and check that the testCharges list is populated
-    // according to the grid dimensions computed from GRID_SIZE.
     @Test
-    public void testCreateTestChargeMap() {
-        PresetConfigurator.createTestChargeMap(simulation);
-        int testChargeCount = simulation.getTestCharges().size();
+    void testCreateAndClearTestChargeMap() {
+        // Create the test‐charge map
+        PresetConfigurator.createTestChargeMap(sim);
+        List<TestCharge> tcs = sim.getTestCharges();
 
-        // Calculate expected number of test charges.
-        int cols = (int) ((app.width - ConfigManager.getInstance().getSidePanelWidth()) / ConfigManager.getInstance().getGridSize());
-        int rows = (int) (app.height / ConfigManager.getInstance().getGridSize());
-        // Charges are added in steps of 2 for both x and y:
-        int expectedCols = (cols + 1) / 2; // integer division rounding down is acceptable if cols is even.
-        int expectedRows = (rows + 1) / 2;
-        int expectedCount = expectedCols * expectedRows;
-        assertEquals(expectedCount, testChargeCount,
-                "Test charge map should populate " + expectedCount + " test charges, but got " + testChargeCount);
-    }
+        int cols = (int) ((sim.getWidth() - cm.getGridSize()) / cm.getGridSize());
+        int rows = (int) (sim.getHeight() / cm.getGridSize());
+        int step = PresetConfigurator.TEST_CHARGE_MAP_STEP;
+        int countX = (cols + step - 1) / step;
+        int countY = (rows + step - 1) / step;
+        int expectedTotal = countX * countY;
 
-    // Clear Test Charges:
-    // Verify that clearTestCharges(simulation) empties the testCharges list.
-    @Test
-    public void testClearTestCharges() {
-        // First, populate some test charges.
-        simulation.addTestCharge(new PVector(10, 10));
-        simulation.addTestCharge(new PVector(20, 20));
-        assertTrue(!simulation.getTestCharges().isEmpty(), "There should be test charges before clearing.");
-        PresetConfigurator.clearTestCharges(simulation);
-        assertTrue(simulation.getTestCharges().isEmpty(), "Test charges list should be empty after clearing.");
+        assertEquals(expectedTotal, tcs.size(), "Test-charge map should have the expected count");
+
+        for (TestCharge tc : tcs) {
+            assertEquals(cm.getTestChargeCharge(), tc.getCharge(), 1e-9f, "Each test charge should use the default test charge value");
+        }
+
+        // Then clear them
+        PresetConfigurator.clearTestCharges(sim);
+        assertTrue(sim.getTestCharges().isEmpty(), "clearTestCharges should remove all test charges");
     }
 }
