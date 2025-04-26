@@ -2,6 +2,7 @@
 
 **Team Members:** Chandana Sunkara, Ted Mburu  
 **Java Version:** 23.0.1 (JDK 23)  
+**Video recording of the demo:** https://drive.google.com/file/d/1JYOBWqVvF-M-1Rb9Q4c4iBKLb69ORHXn/view?usp=sharing
 
 ---
 
@@ -65,7 +66,7 @@ Users can add, drag, and customize charges in real time, as well as explore seve
 
 ---
 
-## Software Design Patterns
+## Object Oriented Design Patterns
 
 To keep the codebase modular, extensible, and maintainable, the Java simulation uses several classical patterns:
 
@@ -240,5 +241,3 @@ This project is released under the **MIT License**. See [LICENSE](LICENSE) for d
 - **Processing.org** – Core graphics framework
 - **ControlP5** – GUI controls for Processing
 - [Original JavaScript Simulation](https://icphysweb.z13.web.core.windows.net/simulation.html)
-
-Video recording of the demo: [CSCI EField Project.mp4](images%20and%20video/CSCI%20EField%20Project.mp4)
