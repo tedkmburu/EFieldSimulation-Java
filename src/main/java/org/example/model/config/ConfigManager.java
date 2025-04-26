@@ -28,7 +28,6 @@ public final class ConfigManager {
         props.setProperty("field.vector.scale",       "500");
     }
 
-    /** Double-checked locking getter */
     public static ConfigManager getInstance() {
         if (instance == null) {
             synchronized (ConfigManager.class) {
@@ -42,79 +41,79 @@ public final class ConfigManager {
 
     // ——— Typed accessors ———
 
-    public float getCoulombsConstant() {
+    public Float getCoulombsConstant() {
         return Float.parseFloat(props.getProperty("coulombs.constant"));
     }
 
-    public float getTestChargeCharge() {
+    public Float getTestChargeCharge() {
         return Float.parseFloat(props.getProperty("test.charge.charge"));
     }
 
-    public int getPointChargeMaxValue() {
-        return Integer.parseInt(props.getProperty("point.charge.max.value"));
+    public Float getPointChargeMaxValue() {
+        return Float.parseFloat(props.getProperty("point.charge.max.value"));
     }
 
-    public int getPointChargeMinValue() {
-        return Integer.parseInt(props.getProperty("point.charge.min.value"));
+    public Float getPointChargeMinValue() {
+        return Float.parseFloat(props.getProperty("point.charge.min.value"));
     }
 
-    public float getChargeIncrementDelta() {
+    public Float getChargeIncrementDelta() {
         return Float.parseFloat(props.getProperty("charge.increment.delta"));
     }
 
-    public int getGridSize() {
-        return Integer.parseInt(props.getProperty("grid.size"));
+    public Float getGridSize() {
+        return Float.parseFloat(props.getProperty("grid.size"));
     }
 
-    public int getSidePanelWidth() {
+    public Integer getSidePanelWidth() {
         return Integer.parseInt(props.getProperty("side.panel.width"));
     }
 
-    public int getSidePanelPadding() {
+    public Integer getSidePanelPadding() {
         return Integer.parseInt(props.getProperty("side.panel.padding"));
     }
 
-    public int getChargeDiameter() {
+    public Integer getChargeDiameter() {
         return Integer.parseInt(props.getProperty("charge.diameter"));
     }
 
-    public float getChargeRadius() {
+    public Float getChargeRadius() {
         return Float.parseFloat(props.getProperty("charge.radius"));
     }
 
-    public int getTestChargeDiameter() {
+    public Integer getTestChargeDiameter() {
         return Integer.parseInt(props.getProperty("test.charge.diameter"));
     }
 
-    public float getTestChargeRadius() {
+    public Float getTestChargeRadius() {
         return Float.parseFloat(props.getProperty("test.charge.radius"));
     }
 
-    public int getPositiveChargeColor() {
+    public Integer getPositiveChargeColor() {
         return Long.decode(props.getProperty("positive.charge.color")).intValue();
     }
 
-    public int getNegativeChargeColor() {
+    public Integer getNegativeChargeColor() {
         return Long.decode(props.getProperty("negative.charge.color")).intValue();
     }
 
-    public int getNeutralChargeColor() {
+    public Integer getNeutralChargeColor() {
         return Long.decode(props.getProperty("neutral.charge.color")).intValue();
     }
 
-    public float getEquiLinesAccuracy() {
+    public Float getEquiLinesAccuracy() {
         return Float.parseFloat(props.getProperty("equi.lines.accuracy"));
     }
 
-    public int getEquiLinesLimit() {
+    public Integer getEquiLinesLimit() {
         return Integer.parseInt(props.getProperty("equi.lines.limit"));
     }
 
-    public int getFieldLinesPerCoulomb() {
+    public Integer getFieldLinesPerCoulomb() {
         return Integer.parseInt(props.getProperty("field.lines.per.coulomb"));
     }
 
-    public float getFieldVectorScale() {
+    public Float getFieldVectorScale() {
         return Float.parseFloat(props.getProperty("field.vector.scale"));
     }
 }

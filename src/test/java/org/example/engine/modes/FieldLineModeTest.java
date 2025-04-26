@@ -78,7 +78,7 @@ public class FieldLineModeTest {
 
         // Inspect generated field lines
         List<?> fieldLines = (List<?>) fieldLinesField.get(sim);
-        int expected = cm.getFieldLinesPerCoulomb() * 1;
+        Integer expected = cm.getFieldLinesPerCoulomb() * 1;
         assertEquals(expected, fieldLines.size(),
                 "Field lines count should equal fieldLinesPerCoulomb × charge magnitude");
     }

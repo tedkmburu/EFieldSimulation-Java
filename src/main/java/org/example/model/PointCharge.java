@@ -9,11 +9,11 @@ import processing.core.PVector;
 
 
 public class PointCharge extends Charge {
-    public boolean selected = false;
-    public boolean dragging = false;
+    public Boolean selected = false;
+    public Boolean dragging = false;
     private Integer diameter;
 
-    public PointCharge(PVector position, float charge) {
+    public PointCharge(PVector position, Float charge) {
         super(position, charge);
 
         this.diameter = ConfigManager.getInstance().getChargeDiameter();
@@ -40,12 +40,8 @@ public class PointCharge extends Charge {
         app.pushStyle();
         app.fill(255);
         app.textAlign(PConstants.CENTER, PConstants.CENTER);
-        app.text((int)charge, position.x, position.y);                   // draw the number
+        app.text(charge.intValue(), position.x, position.y);                   // draw the number
         app.popStyle();
-    }
-
-    public boolean isDragging() {
-        return dragging;
     }
 
     public void select() {

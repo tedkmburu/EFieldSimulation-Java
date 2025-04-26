@@ -5,16 +5,16 @@ import processing.core.PVector;
 
 public class PresetConfigurator {
 
-    public static final float SINGLE_CHARGE_VALUE        = 5f;
-    public static final float DIPOLE_CHARGE_MAGNITUDE    = 5f;
-    public static final int   DIPOLE_SPACING_MULTIPLIER  = 10; // × GRID_SIZE
-    public static final int   ROW_COUNT                  = 4;
-    public static final int   ROW_SPACING_MULTIPLIER     = 3;  // × GRID_SIZE
-    public static final int   DIPOLE_ROW_COUNT           = 4;
-    public static final int   DIPOLE_ROW_SPACING_MULTIPLIER = ROW_SPACING_MULTIPLIER;
-    public static final int   DIPOLE_ROW_VERTICAL_FACTOR   = 1; // × spacing
-    public static final int   RANDOM_CHARGE_COUNT        = 10;
-    public static final int   TEST_CHARGE_MAP_STEP       = 2;  // add charge every 2 intersecting grid lines
+    public static final Float SINGLE_CHARGE_VALUE        = 5f;
+    public static final Float DIPOLE_CHARGE_MAGNITUDE    = 5f;
+    public static final Integer   DIPOLE_SPACING_MULTIPLIER  = 10; // × GRID_SIZE
+    public static final Integer   ROW_COUNT                  = 4;
+    public static final Integer   ROW_SPACING_MULTIPLIER     = 3;  // × GRID_SIZE
+    public static final Integer   DIPOLE_ROW_COUNT           = 4;
+    public static final Integer   DIPOLE_ROW_SPACING_MULTIPLIER = ROW_SPACING_MULTIPLIER;
+    public static final Integer   DIPOLE_ROW_VERTICAL_FACTOR   = 1; // × spacing
+    public static final Integer   RANDOM_CHARGE_COUNT        = 10;
+    public static final Integer   TEST_CHARGE_MAP_STEP       = 2;  // add charge every 2 intersecting grid lines
 
     // helper: center of the simulation
     private static PVector center(SimulationModel sim) {
@@ -23,9 +23,9 @@ public class PresetConfigurator {
 
     // helper: round to nearest GRID_SIZE multiple
     private static PVector snapToGrid(PVector p) {
-        float g = ConfigManager.getInstance().getGridSize();
-        float x = Math.round(p.x / g) * g;
-        float y = Math.round(p.y / g) * g;
+        Float g = ConfigManager.getInstance().getGridSize();
+        Float x = Math.round(p.x / g) * g;
+        Float y = Math.round(p.y / g) * g;
         return new PVector(x, y);
     }
 
@@ -44,7 +44,7 @@ public class PresetConfigurator {
         simulation.removeAllPointCharges();
 
         // pick a spacing in grid‐units (e.g. 4 cells apart)
-        float spacing = DIPOLE_SPACING_MULTIPLIER * ConfigManager.getInstance().getGridSize();
+        Float spacing = (float) (DIPOLE_SPACING_MULTIPLIER * ConfigManager.getInstance().getGridSize());
         PVector mid = center(simulation);
 
         // left and right positions, then snap each
@@ -59,14 +59,14 @@ public class PresetConfigurator {
         simulation.clearEquipotentialLines();
         simulation.removeAllPointCharges();
 
-        int num = ROW_COUNT;
-        float spacing = ConfigManager.getInstance().getGridSize() * ROW_SPACING_MULTIPLIER;
+        Integer num = ROW_COUNT;
+        Float spacing = (ConfigManager.getInstance().getGridSize() * ROW_SPACING_MULTIPLIER);
         PVector mid = center(simulation);
         // start so that the whole row is centered
-        float totalWidth = spacing * (num - 1);
-        float startX = mid.x - totalWidth/2;
+        Float totalWidth = spacing * (num - 1);
+        Float startX = mid.x - totalWidth/2;
 
-        for (int i = 0; i < num; i++) {
+        for (Integer i = 0; i < num; i++) {
             PVector p = new PVector(startX + i*spacing, mid.y);
             simulation.addPointCharge(snapToGrid(p), 5f);
         }
@@ -76,15 +76,15 @@ public class PresetConfigurator {
         simulation.removeAllPointCharges();
         simulation.clearEquipotentialLines();
 
-        int    numDipoles    = DIPOLE_ROW_COUNT;
-        float  spacing       = ConfigManager.getInstance().getGridSize() * DIPOLE_ROW_SPACING_MULTIPLIER;
+        Integer    numDipoles    = DIPOLE_ROW_COUNT;
+        Float  spacing       = (ConfigManager.getInstance().getGridSize() * DIPOLE_ROW_SPACING_MULTIPLIER);
         PVector mid          = center(simulation);
-        float  totalWidth    = spacing * (numDipoles - 1);
-        float  startX        = mid.x - totalWidth / 2;
-        float  verticalShift = spacing * DIPOLE_ROW_VERTICAL_FACTOR;           // vertical separation between + and –
+        Float  totalWidth    = spacing * (numDipoles - 1);
+        Float  startX        = mid.x - totalWidth / 2;
+        Float  verticalShift = spacing * DIPOLE_ROW_VERTICAL_FACTOR;           // vertical separation between + and –
 
-        for (int i = 0; i < numDipoles; i++) {
-            float x = startX + i * spacing;
+        for (Integer i = 0; i < numDipoles; i++) {
+            Float x = startX + i * spacing;
             // positive pole (above center)
             PVector pos = snapToGrid(new PVector(x, mid.y - verticalShift/2));
             simulation.addPointCharge(pos, +DIPOLE_CHARGE_MAGNITUDE);
@@ -98,12 +98,12 @@ public class PresetConfigurator {
         simulation.removeAllPointCharges();
         simulation.clearEquipotentialLines();
 
-        int numCharges = RANDOM_CHARGE_COUNT;
-        for (int i = 0; i < numCharges; i++) {
-            float x = (float) (Math.random() * (simulation.getWidth() - ConfigManager.getInstance().getSidePanelWidth()));
-            float y = (float) (Math.random() * simulation.getHeight());
+        Integer numCharges = RANDOM_CHARGE_COUNT;
+        for (Integer i = 0; i < numCharges; i++) {
+            Float x = (float) (Math.random() * (simulation.getWidth() - ConfigManager.getInstance().getSidePanelWidth()));
+            Float y = (float) (Math.random() * simulation.getHeight());
             // Random charge: either 5 or -5
-            float charge = (Math.random() < 0.5) ? ConfigManager.getInstance().getPointChargeMaxValue() : ConfigManager.getInstance().getPointChargeMinValue();
+            Float charge = (Math.random() < 0.5) ? ConfigManager.getInstance().getPointChargeMaxValue() : ConfigManager.getInstance().getPointChargeMinValue();
             simulation.addPointCharge(new PVector(x, y), charge);
         }
     }
@@ -112,13 +112,13 @@ public class PresetConfigurator {
         clearTestCharges(simulation);
         simulation.clearEquipotentialLines();
 
-        Integer GRID_SIZE = ConfigManager.getInstance().getGridSize();
+        Float GRID_SIZE = ConfigManager.getInstance().getGridSize();
         Integer cols = (int) ((simulation.getWidth() - ConfigManager.getInstance().getGridSize()) / GRID_SIZE);
         Integer rows = (int) (simulation.getHeight() / GRID_SIZE);
 
         // Fill the array with a single color (e.g., blue)
-        for (int x = 0; x < cols; x+=TEST_CHARGE_MAP_STEP) {
-            for (int y = 0; y < rows; y+=TEST_CHARGE_MAP_STEP) {
+        for (Integer x = 0; x < cols; x+=TEST_CHARGE_MAP_STEP) {
+            for (Integer y = 0; y < rows; y+=TEST_CHARGE_MAP_STEP) {
                 PVector pos = new PVector(x * GRID_SIZE, y * GRID_SIZE);
                 simulation.addTestCharge(pos);
             }

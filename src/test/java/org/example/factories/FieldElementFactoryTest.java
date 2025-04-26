@@ -65,7 +65,7 @@ public class FieldElementFactoryTest {
         ArrayList<PVector> points = new ArrayList<>();
         points.add(new PVector(0, 0));
         points.add(new PVector(10, 10));
-        float voltage = 42.0f;
+        Float voltage = 42.0f;
 
         EquiLine eq = factory.createEquiLine(pap, points, voltage);
         assertNotNull(eq, "EquiLine should not be null");

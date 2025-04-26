@@ -12,9 +12,9 @@ public class FieldLineBuilder {
     private final PVector start;
     private final ArrayList<PointCharge> pointCharges;
 
-    private int maxLoops = 500;
-    private float stepSize = ConfigManager.getInstance().getChargeRadius();
-    private int arrowInterval = 5;
+    private Integer maxLoops = 500;
+    private Float stepSize = ConfigManager.getInstance().getChargeRadius();
+    private Integer arrowInterval = 5;
 
     public FieldLineBuilder(PApplet app, PVector start, ArrayList<PointCharge> pointCharges) {
         this.app     = app;

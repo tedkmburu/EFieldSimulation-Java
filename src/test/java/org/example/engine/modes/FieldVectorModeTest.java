@@ -75,14 +75,14 @@ public class FieldVectorModeTest {
 
         @SuppressWarnings("unchecked")
         List<?> fieldVectors = (List<?>) fieldVectorsField.get(sim);
-        int grid = cm.getGridSize();
+        Float grid = cm.getGridSize();
 
         // Recompute expected count, skipping any grid-point within chargeDiameter of a charge
-        int expectedCount = 0;
+        Integer expectedCount = 0;
         float radius = cm.getChargeDiameter();
         PVector chargePos = sim.getPointCharges().get(0).getPosition();
-        for (int y = 0; y < pap.height; y += grid) {
-            for (int x = 0; x < pap.width; x += grid) {
+        for (Float y = 0F; y < pap.height; y += grid) {
+            for (Float x = 0F; x < pap.width; x += grid) {
                 if (PVector.dist(new PVector(x, y), chargePos) >= radius) {
                     expectedCount++;
                 }

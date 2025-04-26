@@ -7,10 +7,8 @@ import org.example.controller.commands.Invoker;
 import org.example.controller.commands.ToggleFieldLinesCommand;
 import org.example.model.config.ConfigManager;
 import processing.core.PApplet;
-
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class ControlPanel {
     private PApplet parent;
@@ -33,13 +31,10 @@ public class ControlPanel {
     public void addListener(ControlPanelListener l) {
         listeners.add(l);
     }
-    public void removeListener(ControlPanelListener l) {
-        listeners.remove(l);
-    }
 
     public void controlEvent(ControlEvent e) {
         String name = e.getController().getName();
-        boolean value = e.getController().getValue() == 1.0;
+        Boolean value = e.getController().getValue() == 1.0;
         switch (name) {
             case "fieldLinesToggle":
                 invoker.execute(new ToggleFieldLinesCommand(simulation, this));
@@ -122,18 +117,16 @@ public class ControlPanel {
     }
 
     private void createGUI() {
-        int panelX = parent.width - ConfigManager.getInstance().getSidePanelWidth(); // near the right edge
-        int startY = 30;
-        int spacing = 40;
-        int ToggleSize = 20;
-        int buttonWidth = 150;
-        int buttonHeight = 25;
+        Integer panelX = parent.width - ConfigManager.getInstance().getSidePanelWidth(); // near the right edge
+        Integer startY = 120;
+        Integer spacing = 40;
+        Integer ToggleSize = 20;
+        Integer buttonWidth = 150;
+        Integer buttonHeight = 25;
 
-        int textColor = parent.color(0);
+        Integer textColor = parent.color(0);
 
-        // --------------------------------------------------------
-        // 1) Togglees for various features
-        // --------------------------------------------------------
+        // Toggles for various features
         // Field Lines
         cp5.addToggle("fieldLinesToggle")
                 .setPosition(panelX, startY)
@@ -201,13 +194,24 @@ public class ControlPanel {
                 .setValue(snapToGrid)
                 .setLabel("Snap to Grid");
 
-        startY += spacing * 2;
         panelX -= ToggleSize;
 
+        // Label for "Control Panel"
+        cp5.addTextlabel("controlPanelLabel")
+                .setText("Control Panel")
+                .setPosition(panelX, startY - 330)
+                .setColor(textColor)
+                .setFont(parent.createFont("Arial", 20));
+        startY += spacing;
 
-        // --------------------------------------------------------
-        // 2) Label for "Premade Configurations:"
-        // --------------------------------------------------------
+        cp5.addTextlabel("electricFieldModesLabel")
+                .setText("Electric Field Modes:")
+                .setPosition(panelX, startY - 330)
+                .setColor(textColor)
+                .setFont(parent.createFont("Arial", 14));
+        startY += spacing;
+
+        // Label for "Premade Configurations"
         cp5.addTextlabel("premadeConfigsLabel")
                 .setText("Premade Configurations:")
                 .setPosition(panelX, startY)
@@ -257,9 +261,7 @@ public class ControlPanel {
                 .setLabel("Remove All Charges");
         startY += spacing;
 
-        // --------------------------------------------------------
         // 3) Test Charge Mode
-        // --------------------------------------------------------
         cp5.addToggle("testChargeModeToggle")
                 .setPosition(panelX, startY)
                 .setSize(ToggleSize, ToggleSize)
@@ -281,16 +283,52 @@ public class ControlPanel {
                 .setLabel("Clear Test Charges");
     }
 
-    // Getters for Simulation code to see which flags are on/off
-    public boolean showFieldLinesMode() { return showFieldLines; }
-    public boolean showFieldVectorsMode() { return showFieldVectors; }
-    public boolean showEquipotentialLinesMode() { return showEquipotentialLines; }
-    public boolean showVoltageMode() { return showVoltage; }
-    public boolean numericalValueMode() { return numericalValue; }
-    public boolean showGridMode() { return showGrid; }
-    public boolean snapToGridMode() { return snapToGrid; }
-    public boolean testChargeMode() { return testChargeMode; }
+    public void setTestChargeMode(boolean on) {
+        if (cp5 == null) return;
+        // 1) update your model
+        testChargeMode = on;
+        // 2) visually update the CP5 toggle
+        cp5.getController("testChargeModeToggle")
+                .setValue(on ? 1.0f : 0.0f);
+        // 3) notify listeners
+        listeners.forEach(l -> l.onTestChargeModeToggled(on));
+    }
 
-    public void toggleTestChargeMode(boolean b) {
+    public void setGridMode(boolean on) {
+        // 1) update your model
+        showGrid = on;
+        // 2) visually update the CP5 toggle
+        cp5.getController("gridToggle")
+                .setValue(on ? 1.0f : 0.0f);
+        // 3) notify listeners
+        listeners.forEach(l -> l.onGridToggled(on));
+    }
+
+    // Getters for Simulation code to see which flags are on/off
+    public Boolean showFieldLinesMode() {
+        return showFieldLines;
+    }
+    public Boolean showFieldVectorsMode() {
+        return showFieldVectors;
+    }
+
+    public Boolean showEquipotentialLinesMode() {
+        return showEquipotentialLines;
+    }
+
+    public Boolean showVoltageMode() {
+        return showVoltage;
+    }
+
+    public Boolean showGridMode() {
+        return showGrid;
+    }
+
+    public Boolean snapToGridMode() {
+        return snapToGrid;
+    }
+
+    public Boolean testChargeMode() {
+        return testChargeMode;
     }
 }

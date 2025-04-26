@@ -6,13 +6,14 @@ import org.example.view.ui.ControlPanel;
 
 public class CreateTestChargeMapCommand implements Command {
     private final SimulationModel sim;
-    private boolean prevMode;
+    private Boolean prevMode;
     private final ControlPanel controlPanel;
 
     public CreateTestChargeMapCommand(SimulationModel simulation, ControlPanel controlPanel) {
         this.sim = simulation;
         this.controlPanel = controlPanel;
         this.prevMode = controlPanel.testChargeMode();
+        controlPanel.setTestChargeMode(true);
     }
 
     @Override

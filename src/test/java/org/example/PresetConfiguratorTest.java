@@ -107,25 +107,25 @@ public class PresetConfiguratorTest {
     void testSetDipoleRowConfiguration() {
         PresetConfigurator.setDipoleRowConfiguration(sim);
         List<PointCharge> charges = sim.getPointCharges();
-        int expectedCount = 2 * PresetConfigurator.DIPOLE_ROW_COUNT;
+        Integer expectedCount = 2 * PresetConfigurator.DIPOLE_ROW_COUNT;
         assertEquals(expectedCount, charges.size(), "Should have 2×DIPOLE_ROW_COUNT point charges");
 
-        float midX = (pap.width - (cm.getSidePanelWidth() + cm.getSidePanelPadding())) / 2f;
-        float midY = pap.height / 2f;
-        float spacing = cm.getGridSize() * PresetConfigurator.DIPOLE_ROW_SPACING_MULTIPLIER;
-        float totalWidth = spacing * (PresetConfigurator.DIPOLE_ROW_COUNT - 1);
-        float startX = midX - totalWidth / 2f;
-        float verticalHalf = spacing * PresetConfigurator.DIPOLE_ROW_VERTICAL_FACTOR / 2f;
-        float expectedPosY = Math.round((midY - verticalHalf) / cm.getGridSize()) * cm.getGridSize();
-        float expectedNegY = Math.round((midY + verticalHalf) / cm.getGridSize()) * cm.getGridSize();
+        Float midX = (pap.width - (cm.getSidePanelWidth() + cm.getSidePanelPadding())) / 2f;
+        Float midY = pap.height / 2f;
+        Float spacing = cm.getGridSize() * PresetConfigurator.DIPOLE_ROW_SPACING_MULTIPLIER;
+        Float totalWidth = spacing * (PresetConfigurator.DIPOLE_ROW_COUNT - 1);
+        Float startX = midX - totalWidth / 2f;
+        Float verticalHalf = spacing * PresetConfigurator.DIPOLE_ROW_VERTICAL_FACTOR / 2f;
+        Float expectedPosY = Math.round((midY - verticalHalf) / cm.getGridSize()) * cm.getGridSize();
+        Float expectedNegY = Math.round((midY + verticalHalf) / cm.getGridSize()) * cm.getGridSize();
 
-        for (int i = 0; i < PresetConfigurator.DIPOLE_ROW_COUNT; i++) {
-            int base = 2 * i;
+        for (Integer i = 0; i < PresetConfigurator.DIPOLE_ROW_COUNT; i++) {
+            Integer base = 2 * i;
             PointCharge pos = charges.get(base);
             PointCharge neg = charges.get(base + 1);
 
-            float rawX = startX + i * spacing;
-            float expectedX = Math.round(rawX / cm.getGridSize()) * cm.getGridSize();
+            Float rawX = startX + i * spacing;
+            Float expectedX = Math.round(rawX / cm.getGridSize()) * cm.getGridSize();
 
             // Positive pole
             assertEquals(expectedX, pos.getPosition().x, 1e-3f, "Dipole-row pos " + i + " x");
@@ -146,9 +146,9 @@ public class PresetConfiguratorTest {
         assertEquals(PresetConfigurator.RANDOM_CHARGE_COUNT, charges.size(), "Should have RANDOM_CHARGE_COUNT point charges");
 
         for (PointCharge pc : charges) {
-            float c = pc.getCharge();
-            boolean isMax = c == cm.getPointChargeMaxValue();
-            boolean isMin = c == cm.getPointChargeMinValue();
+            Float c = pc.getCharge();
+            Boolean isMax = c.equals(cm.getPointChargeMaxValue());
+            Boolean isMin = c.equals(cm.getPointChargeMinValue());
             assertTrue(isMax || isMin, "Each random charge must be either max or min");
         }
     }

@@ -18,13 +18,13 @@ public class ToggleFieldLinesCommandTest {
     static class TestListener implements ControlPanelListener {
         Boolean lastValue;
 
-        @Override public void onFieldLinesToggled(boolean on) { lastValue = on; }
-        @Override public void onFieldVectorsToggled(boolean on) {}
-        @Override public void onEquipotentialToggled(boolean on) {}
-        @Override public void onVoltageToggled(boolean on) {}
-        @Override public void onGridToggled(boolean on) {}
-        @Override public void onSnapToGridToggled(boolean on) {}
-        @Override public void onTestChargeModeToggled(boolean on) {}
+        @Override public void onFieldLinesToggled(Boolean on) { lastValue = on; }
+        @Override public void onFieldVectorsToggled(Boolean on) {}
+        @Override public void onEquipotentialToggled(Boolean on) {}
+        @Override public void onVoltageToggled(Boolean on) {}
+        @Override public void onGridToggled(Boolean on) {}
+        @Override public void onSnapToGridToggled(Boolean on) {}
+        @Override public void onTestChargeModeToggled(Boolean on) {}
         @Override public void onSinglePreset() {}
         @Override public void onDipolePreset() {}
         @Override public void onRowPreset() {}

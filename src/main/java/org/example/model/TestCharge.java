@@ -15,9 +15,7 @@ public class TestCharge extends Charge {
 
     private PVector velocity;
     private PVector acceleration;
-    private float radius;
-    private float diameter;
-    private int displayColor; // Processing color
+    private Integer diameter;
 
     private static final Style POS_TC = StyleFactory.getStyle(ConfigManager.getInstance().getPositiveChargeColor(), 0, 1f, true);
     private static final Style NEG_TC = StyleFactory.getStyle(ConfigManager.getInstance().getNegativeChargeColor(), 0, 1f, true);
@@ -27,7 +25,6 @@ public class TestCharge extends Charge {
         super(position, charge);
         this.velocity = createVector();
         this.acceleration = createVector();
-        this.radius = ConfigManager.getInstance().getTestChargeRadius();
         this.diameter = ConfigManager.getInstance().getTestChargeDiameter();
 
     }

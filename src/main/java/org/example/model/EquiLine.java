@@ -6,20 +6,20 @@ import java.util.ArrayList;
 
 public class EquiLine {
     private ArrayList<PVector> points;
-    private int strokeColor;
+    private Integer strokeColor;
 
     public EquiLine(PApplet app, ArrayList<PVector> points, float voltage) {
         this.points = points;
-        float absVoltage = Math.abs(voltage);
+        Float absVoltage = Math.abs(voltage);
         // Map voltage to an intensity (adjust the range as needed)
-        float intensity = app.map(absVoltage, 0, 475, 0, 255);
-        int red = 0;
-        int blue = 0;
-        int alpha = (int)(intensity * 10);
+        Float intensity = app.map(absVoltage, 0, 475, 0, 255);
+        Float red = 0.0f;
+        Float blue = 0.0f;
+        Float alpha = (intensity * 10.0f);
         if (voltage > 0) {
-            red = (int) intensity;
+            red = intensity;
         } else if (voltage < 0) {
-            blue = (int) intensity;
+            blue = intensity;
         }
         if (voltage == 0) {
             strokeColor = app.color(255, 255, 255, 255);

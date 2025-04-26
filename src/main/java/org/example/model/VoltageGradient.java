@@ -10,10 +10,9 @@ import java.util.ArrayList;
 import static processing.core.PApplet.map;
 
 public class VoltageGradient {
-    int[][] grid;
-    int voltageFidelity = ConfigManager.getInstance().getGridSize() / 3;
-    int cols;
-    int rows;
+    Float voltageFidelity = ConfigManager.getInstance().getGridSize() / 3;
+    Integer cols;
+    Integer rows;
     public final PGraphics pg;
 
     public VoltageGradient(SimulationModel simulation) {
@@ -35,18 +34,18 @@ public class VoltageGradient {
         pg.clear();
         pg.noStroke();
 
-        for (int x = 0; x < cols; x++) {
-            for (int y = 0; y < rows; y++) {
-                float fx = x * voltageFidelity, fy = y * voltageFidelity;
-                float v    = CommonMath.voltageAtPoint(new PVector(fx, fy), pointCharges);
+        for (Integer x = 0; x < cols; x++) {
+            for (Integer y = 0; y < rows; y++) {
+                Float fx = x * voltageFidelity, fy = y * voltageFidelity;
+                Float v    = CommonMath.voltageAtPoint(new PVector(fx, fy), pointCharges);
 
                 // compute color
-                int c;
-                float absV = Math.abs(v);
-                float intensity = Math.round(
-                        map(absV, 0, 1000000, 0, 200)
+                Integer c;
+                Float absV = Math.abs(v);
+                Float intensity = (float) Math.round(
+                        map(absV, 0.0f, 1000000f, 0f, 250f)
                 );
-                float red=0, blue=0, alpha=0;
+                Float red=0.0f, blue=0.0f, alpha=0.0f;
                 if (Math.abs(v) >= 10f && intensity*5 >= 50f) {
                     if (v>0) red = intensity;
                     else    blue = intensity;
@@ -56,11 +55,12 @@ public class VoltageGradient {
 
                 // draw the cell onto the buffer
                 pg.fill(c);
+                pg.noStroke();
                 pg.rect(fx, fy, voltageFidelity, voltageFidelity);
             }
         }
 
-//        // now apply a Gaussian blur of radius 4 pixels:
+//        // apply a Gaussian blur of radius 4 pixels:
 //        pg.filter(PApplet.BLUR, 2);
 
         pg.endDraw();

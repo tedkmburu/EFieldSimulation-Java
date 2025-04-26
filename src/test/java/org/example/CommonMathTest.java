@@ -12,17 +12,14 @@ import processing.core.PVector;
 
 public class CommonMathTest {
 
-    /**
-     * Net Force Calculation:
-     * For a point charge at (200,200) with charge +5, evaluating netForceAtPoint at (300,200):
-     *   diff = (200,200) - (300,200) = (-100, 0)
-     *   r = 100
-     *   forceMag = K * q / r^2 = 8990000 * 5 / (100*100) ≈ 4495
-     * Expect vector ≈ (-4495, 0).
-     */
     @Test
     public void testNetForceCalculation() {
-        PointCharge charge = new PointCharge(new PVector(200, 200), 5);
+//     For a point charge at (200,200) with charge +5, evaluating netForceAtPoint at (300,200):
+//     diff = (200,200) - (300,200) = (-100, 0)
+//     r = 100
+//     forceMag = K * q / r^2 = 8990000 * 5 / (100*100) ≈ 4495
+//     Expect vector ≈ (-4495, 0).
+        PointCharge charge = new PointCharge(new PVector(200, 200), 5F);
         ArrayList<PointCharge> charges = new ArrayList<>();
         charges.add(charge);
 
@@ -39,25 +36,19 @@ public class CommonMathTest {
                 "Net force y-component should be approximately 0");
     }
 
-    /**
-     * Inside-Charge Check:
-     * A point 10px away from a charge at (200,200) should lie within its radius (20px).
-     */
     @Test
     public void testMouseIsInsideCharge() {
-        PointCharge charge = new PointCharge(new PVector(200, 200), 5);
+        // A point 10px away from a charge at (200,200) should lie within its radius (20px)
+        PointCharge charge = new PointCharge(new PVector(200, 200), 5F);
         PVector inside = new PVector(210, 200);
         assertTrue(CommonMath.mouseIsInsideCharge(inside, charge),
                 "Point should be inside the charge's radius.");
     }
 
-    /**
-     * Voltage Calculation:
-     * For same single charge, V = K * q / r = 8990000 * 5 / 100 ≈ 449500.
-     */
     @Test
     public void testVoltageCalculation() {
-        PointCharge charge = new PointCharge(new PVector(200, 200), 5);
+        // For same single charge, V = K * q / r = 8990000 * 5 / 100 ≈ 449500
+        PointCharge charge = new PointCharge(new PVector(200, 200), 5F);
         ArrayList<PointCharge> charges = new ArrayList<>();
         charges.add(charge);
 
@@ -70,12 +61,9 @@ public class CommonMathTest {
                 "Voltage should be approximately 449500");
     }
 
-    /**
-     * Vector Creation:
-     * createVector() must return (0,0).
-     */
     @Test
     public void testCreateVector() {
+        // createVector() must return (0,0)
         PVector vec = CommonMath.createVector();
         assertEquals(0.0f, vec.x, 1e-6, "Vector x should be 0");
         assertEquals(0.0f, vec.y, 1e-6, "Vector y should be 0");

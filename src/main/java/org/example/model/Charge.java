@@ -5,9 +5,9 @@ import processing.core.PVector;
 
 abstract public class Charge {
     protected PVector position;
-    protected float charge;
+    protected Float charge;
 
-    public Charge(PVector position, float charge) {
+    public Charge(PVector position, Float charge) {
         this.position = position;
         this.charge = charge;
     }
@@ -16,7 +16,7 @@ abstract public class Charge {
         return position;
     }
 
-    public float getCharge() {
+    public Float getCharge() {
         return charge;
     }
 

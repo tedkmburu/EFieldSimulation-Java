@@ -9,7 +9,7 @@ import processing.core.PApplet;
 import controlP5.ControlEvent;
 
 public class Main extends PApplet {
-    SimulationModel simulation; // Holds simulation logic
+    SimulationModel simulation;
     InputController inputController;
     private ControlPanel controlPanel;
 
@@ -31,7 +31,10 @@ public class Main extends PApplet {
         controlPanel.setSimulation(simulation);
         controlPanel.addListener(simulation);
 
+        // create the dipole
         PresetConfigurator.setDipoleConfiguration(simulation);
+        // now deselect both charges
+        simulation.resetChargeStates();
     }
 
     public void controlEvent(ControlEvent e) {
