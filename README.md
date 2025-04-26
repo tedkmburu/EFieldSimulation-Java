@@ -241,3 +241,4 @@ This project is released under the **MIT License**. See [LICENSE](LICENSE) for d
 - **ControlP5** – GUI controls for Processing
 - [Original JavaScript Simulation](https://icphysweb.z13.web.core.windows.net/simulation.html)
 
+Video recording of the demo: [CSCI EField Project.mp4](images%20and%20video/CSCI%20EField%20Project.mp4)

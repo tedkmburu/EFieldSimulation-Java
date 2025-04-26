@@ -7,10 +7,8 @@ import org.example.controller.commands.Invoker;
 import org.example.controller.commands.ToggleFieldLinesCommand;
 import org.example.model.config.ConfigManager;
 import processing.core.PApplet;
-
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class ControlPanel {
     private PApplet parent;
@@ -128,9 +126,7 @@ public class ControlPanel {
 
         Integer textColor = parent.color(0);
 
-        // --------------------------------------------------------
-        // 1) Togglees for various features
-        // --------------------------------------------------------
+        // Toggles for various features
         // Field Lines
         cp5.addToggle("fieldLinesToggle")
                 .setPosition(panelX, startY)
@@ -202,9 +198,7 @@ public class ControlPanel {
         panelX -= ToggleSize;
 
 
-        // --------------------------------------------------------
         // 2) Label for "Premade Configurations:"
-        // --------------------------------------------------------
         cp5.addTextlabel("premadeConfigsLabel")
                 .setText("Premade Configurations:")
                 .setPosition(panelX, startY)
@@ -254,9 +248,7 @@ public class ControlPanel {
                 .setLabel("Remove All Charges");
         startY += spacing;
 
-        // --------------------------------------------------------
         // 3) Test Charge Mode
-        // --------------------------------------------------------
         cp5.addToggle("testChargeModeToggle")
                 .setPosition(panelX, startY)
                 .setSize(ToggleSize, ToggleSize)
@@ -279,13 +271,35 @@ public class ControlPanel {
     }
 
     // Getters for Simulation code to see which flags are on/off
-    public Boolean showFieldLinesMode() { return showFieldLines; }
-    public Boolean showFieldVectorsMode() { return showFieldVectors; }
-    public Boolean showEquipotentialLinesMode() { return showEquipotentialLines; }
-    public Boolean showVoltageMode() { return showVoltage; }
-    public Boolean numericalValueMode() { return numericalValue; }
-    public Boolean showGridMode() { return showGrid; }
-    public Boolean snapToGridMode() { return snapToGrid; }
-    public Boolean testChargeMode() { return testChargeMode; }
+    public Boolean showFieldLinesMode() {
+        return showFieldLines;
+    }
 
+    public Boolean showFieldVectorsMode() {
+        return showFieldVectors;
+    }
+
+    public Boolean showEquipotentialLinesMode() {
+        return showEquipotentialLines;
+    }
+
+    public Boolean showVoltageMode() {
+        return showVoltage;
+    }
+
+    public Boolean numericalValueMode() {
+        return numericalValue;
+    }
+
+    public Boolean showGridMode() {
+        return showGrid;
+    }
+
+    public Boolean snapToGridMode() {
+        return snapToGrid;
+    }
+
+    public Boolean testChargeMode() {
+        return testChargeMode;
+    }
 }
