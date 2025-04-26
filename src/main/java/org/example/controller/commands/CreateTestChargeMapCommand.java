@@ -6,7 +6,7 @@ import org.example.view.ui.ControlPanel;
 
 public class CreateTestChargeMapCommand implements Command {
     private final SimulationModel sim;
-    private boolean prevMode;
+    private Boolean prevMode;
     private final ControlPanel controlPanel;
 
     public CreateTestChargeMapCommand(SimulationModel simulation, ControlPanel controlPanel) {

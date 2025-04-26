@@ -320,10 +320,6 @@ public class ControlPanel {
         return showVoltage;
     }
 
-    public Boolean numericalValueMode() {
-        return numericalValue;
-    }
-
     public Boolean showGridMode() {
         return showGrid;
     }
