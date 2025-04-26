@@ -13,6 +13,7 @@ public class CreateTestChargeMapCommand implements Command {
         this.sim = simulation;
         this.controlPanel = controlPanel;
         this.prevMode = controlPanel.testChargeMode();
+        controlPanel.setTestChargeMode(true);
     }
 
     @Override

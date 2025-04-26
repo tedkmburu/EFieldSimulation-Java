@@ -43,7 +43,7 @@ public class VoltageGradient {
                 Integer c;
                 Float absV = Math.abs(v);
                 Float intensity = (float) Math.round(
-                        map(absV, 0.0f, 1000000f, 0f, 200f)
+                        map(absV, 0.0f, 1000000f, 0f, 250f)
                 );
                 Float red=0.0f, blue=0.0f, alpha=0.0f;
                 if (Math.abs(v) >= 10f && intensity*5 >= 50f) {
@@ -55,11 +55,12 @@ public class VoltageGradient {
 
                 // draw the cell onto the buffer
                 pg.fill(c);
+                pg.noStroke();
                 pg.rect(fx, fy, voltageFidelity, voltageFidelity);
             }
         }
 
-//        // now apply a Gaussian blur of radius 4 pixels:
+//        // apply a Gaussian blur of radius 4 pixels:
 //        pg.filter(PApplet.BLUR, 2);
 
         pg.endDraw();

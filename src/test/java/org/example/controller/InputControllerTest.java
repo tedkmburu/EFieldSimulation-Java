@@ -36,7 +36,7 @@ public class InputControllerTest {
         pap.width = 640;
         pap.height = 480;
 
-        // Create ControlPanel without UI
+        // Create ControlPanel in skip-UI mode
         controlPanel = new ControlPanel(pap, null, true);
         // Create SimulationModel with panel
         sim = new SimulationModel(pap, controlPanel);

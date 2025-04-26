@@ -9,7 +9,7 @@ import processing.core.PApplet;
 import controlP5.ControlEvent;
 
 public class Main extends PApplet {
-    SimulationModel simulation; // Holds simulation logic
+    SimulationModel simulation;
     InputController inputController;
     private ControlPanel controlPanel;
 

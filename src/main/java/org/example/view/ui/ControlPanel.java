@@ -118,7 +118,7 @@ public class ControlPanel {
 
     private void createGUI() {
         Integer panelX = parent.width - ConfigManager.getInstance().getSidePanelWidth(); // near the right edge
-        Integer startY = 30;
+        Integer startY = 120;
         Integer spacing = 40;
         Integer ToggleSize = 20;
         Integer buttonWidth = 150;
@@ -194,11 +194,24 @@ public class ControlPanel {
                 .setValue(snapToGrid)
                 .setLabel("Snap to Grid");
 
-        startY += spacing * 2;
         panelX -= ToggleSize;
 
+        // Label for "Control Panel"
+        cp5.addTextlabel("controlPanelLabel")
+                .setText("Control Panel")
+                .setPosition(panelX, startY - 330)
+                .setColor(textColor)
+                .setFont(parent.createFont("Arial", 20));
+        startY += spacing;
 
-        // 2) Label for "Premade Configurations:"
+        cp5.addTextlabel("electricFieldModesLabel")
+                .setText("Electric Field Modes:")
+                .setPosition(panelX, startY - 330)
+                .setColor(textColor)
+                .setFont(parent.createFont("Arial", 14));
+        startY += spacing;
+
+        // Label for "Premade Configurations"
         cp5.addTextlabel("premadeConfigsLabel")
                 .setText("Premade Configurations:")
                 .setPosition(panelX, startY)
@@ -270,11 +283,31 @@ public class ControlPanel {
                 .setLabel("Clear Test Charges");
     }
 
+    public void setTestChargeMode(boolean on) {
+        if (cp5 == null) return;
+        // 1) update your model
+        testChargeMode = on;
+        // 2) visually update the CP5 toggle
+        cp5.getController("testChargeModeToggle")
+                .setValue(on ? 1.0f : 0.0f);
+        // 3) notify listeners
+        listeners.forEach(l -> l.onTestChargeModeToggled(on));
+    }
+
+    public void setGridMode(boolean on) {
+        // 1) update your model
+        showGrid = on;
+        // 2) visually update the CP5 toggle
+        cp5.getController("gridToggle")
+                .setValue(on ? 1.0f : 0.0f);
+        // 3) notify listeners
+        listeners.forEach(l -> l.onGridToggled(on));
+    }
+
     // Getters for Simulation code to see which flags are on/off
     public Boolean showFieldLinesMode() {
         return showFieldLines;
     }
-
     public Boolean showFieldVectorsMode() {
         return showFieldVectors;
     }

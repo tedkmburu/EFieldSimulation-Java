@@ -30,9 +30,10 @@ public class CreateTestChargeMapCommandTest {
         pap.height = 480;
 
         controlPanel = new ControlPanel(pap, null, true);
+        sim = new SimulationModel(pap, controlPanel);
+
         controlPanel.setSimulation(sim);
 
-        sim = new SimulationModel(pap, controlPanel);
         // start with no test charges
         sim.clearTestCharges();
 

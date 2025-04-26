@@ -413,6 +413,7 @@ public class SimulationModel implements ControlPanelListener {
 
     @Override
     public void onSnapToGridToggled(Boolean on) {
+        controlPanel.setGridMode(on);
         // no action here—InputHandler will pick up the snap setting
     }
 
